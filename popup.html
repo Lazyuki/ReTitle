@@ -1,0 +1,43 @@
+<!doctype html>
+<!--
+ This page is shown when the extension button is clicked, because the
+ "browser_action" field in manifest.json contains the "default_popup" key with
+ value "popup.html".
+ -->
+<html>
+  <head>
+    <title>Extension's Popup</title>
+    <style type="text/css">
+      body {
+        margin: 10px;
+        white-space: nowrap;
+      }
+
+      h1 {
+        font-size: 15px;
+      }
+
+      #container {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+      }
+      div {
+        display: none;
+      }
+    </style>
+    <script src="jquery-3.2.1.slim.min.js"></script>
+  </head>
+
+  <body>
+    <h1>Set new Title</h1>
+    <form id="form">
+      New Title: <input type="text" id="title" placeholder="new title">
+      <input type="submit" value="set">
+    </form>
+    <div>
+      Done
+    </div>
+    <script src="rename.js"></script>        
+  </body>
+</html>
