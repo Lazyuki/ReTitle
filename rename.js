@@ -25,6 +25,22 @@ function rename(e) {
       }`
     });
     // TODO: use insertBefore instead of appendChild? 
-    $('div').show();
+  $('div').show();
+  getCurrentTabUrl(function(url) {
+    chrome.storage.sync.set({url: e});
+  })
+}
+
+function getCurrentTabUrl(callback) {  
+  var queryInfo = {
+    active: true, 
+    currentWindow: true
+  };
+
+  chrome.tabs.query(queryInfo, function(tabs) {
+    var tab = tabs[0]; 
+    var url = tab.url;
+    callback(url);
+  });
 }
 

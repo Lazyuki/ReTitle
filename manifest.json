@@ -9,6 +9,10 @@
     "default_icon": "icon.png",
     "default_popup": "popup.html"
   },
+  "background": {
+    "persistent": false,
+    "scripts": ["background.js"]
+  },
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
@@ -20,7 +24,7 @@
   },
   "permissions": [
     "activeTab",
-    "tabs"
-  ],
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+    "tabs",
+    "storage"
+  ]
 }
