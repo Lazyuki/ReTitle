@@ -1,16 +1,15 @@
 {
-  "manifest_version": 1,
+  "manifest_version": 2,
 
   "name": "Rename Tab Title",
   "description": "This extension makes it easy to change current tab's title",
-  "version": "1.0",
+  "version": "2.0",
 
   "browser_action": {
     "default_icon": "icon.png",
     "default_popup": "popup.html"
   },
   "background": {
-    "persistent": false,
     "scripts": ["background.js"]
   },
   "commands": {
@@ -25,6 +24,7 @@
   "permissions": [
     "activeTab",
     "tabs",
-    "storage"
+    "storage",
+    "<all_urls>"
   ]
 }

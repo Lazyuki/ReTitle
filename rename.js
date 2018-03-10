@@ -1,11 +1,11 @@
-function rename(e) {
+function rename(newTitle) {
   chrome.tabs.executeScript(null,
     {code:`
       if (document.title) { 
-        document.title='${e}'; 
+        document.title='${newTitle}'; 
       } else { 
         let t = document.createElement('title');
-        t.appendChild(document.createTextNode('${e}'));
+        t.appendChild(document.createTextNode('${newTitle}'));
         if (document.head) {
           var h = document.getElementsByTagName('head')[0];
         } else {
@@ -17,30 +17,24 @@ function rename(e) {
     });
     // TODO: use insertBefore instead of appendChild? 
   document.getElementById('done').style.display = 'block';
-  let url = chrome.tabs.tab.url
-  chrome.storage.sync.set({url: e});
-  //getCurrentTabUrl(function(url) {
-  //  chrome.storage.sync.set({url: e});
-  //})
+  setStorage(newTitle);
 }
 
-function getCurrentTabUrl(callback) {  
-  var queryInfo = {
-    active: true, 
+function setStorage(title) {
+  chrome.tabs.query({
+    active: true,
     currentWindow: true
-  };
-
-  chrome.tabs.query(queryInfo, function(tabs) {
-    var tab = tabs[0]; 
-    var url = tab.url;
-    callback(url);
-  });
+  }, function(tabs) {
+    let obj = {};
+    obj[tabs[0].url] = title;
+    chrome.storage.sync.set(obj);
+  })
 }
+
 
 let form = document.getElementById('form');
 form.addEventListener('submit', function(e) {
   e.preventDefault();
-  console.log('called')
   let title = form.elements[0].value;
   rename(title);
 });
