@@ -1,12 +1,3 @@
-$(document).ready(function() {
-  $('#form').submit(function(e) {
-    e.preventDefault();
-    let title = $('#title').val();
-    console.log(title)
-    rename(title);
-  });
-})
-
 function rename(e) {
   chrome.tabs.executeScript(null,
     {code:`
@@ -25,10 +16,12 @@ function rename(e) {
       }`
     });
     // TODO: use insertBefore instead of appendChild? 
-  $('div').show();
-  getCurrentTabUrl(function(url) {
-    chrome.storage.sync.set({url: e});
-  })
+  document.getElementById('done').style.display = 'block';
+  let url = chrome.tabs.tab.url
+  chrome.storage.sync.set({url: e});
+  //getCurrentTabUrl(function(url) {
+  //  chrome.storage.sync.set({url: e});
+  //})
 }
 
 function getCurrentTabUrl(callback) {  
@@ -44,3 +37,10 @@ function getCurrentTabUrl(callback) {
   });
 }
 
+let form = document.getElementById('form');
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+  console.log('called')
+  let title = form.elements[0].value;
+  rename(title);
+});

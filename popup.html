@@ -1,12 +1,8 @@
 <!doctype html>
-<!--
- This page is shown when the extension button is clicked, because the
- "browser_action" field in manifest.json contains the "default_popup" key with
- value "popup.html".
- -->
 <html>
   <head>
-    <title>Extension's Popup</title>
+    <title>ReTitle</title>
+    <script src="rename.js" defer></script>        
     <style type="text/css">
       body {
         margin: 10px;
@@ -26,18 +22,16 @@
         display: none;
       }
     </style>
-    <script src="jquery-3.2.1.slim.min.js"></script>
   </head>
 
   <body>
-    <h1>Set new Title</h1>
+    <h1>Set new title</h1>
     <form id="form">
       New Title: <input type="text" id="title" placeholder="new title">
       <input type="submit" value="set">
     </form>
-    <div>
+    <div id="done">
       Done
     </div>
-    <script src="rename.js"></script>        
   </body>
 </html>

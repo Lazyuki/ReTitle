@@ -3,7 +3,7 @@ chrome.tabs.onUpdated.addListener(function (id, info, tab) {
     chrome.storate.sync.get(info.url, function (items) {
       if (items[info.url]) {
         title = items[info.url];
-        chrome.tabs.executeScript(null,
+        chrome.tabs.executeScript(id,
           {code:`
             if (document.title) {
               document.title='${title}';
