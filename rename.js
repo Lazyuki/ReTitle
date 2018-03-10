@@ -10,14 +10,17 @@ function rename(newTitle) {
           var h = document.getElementsByTagName('head')[0];
         } else {
           var h = document.createElement('head');
-          document.documentElement.appendChild(h);
+          let d = document.documentElement;
+          d.insertBefore(h, d.firstChild);
         }
+
         h.appendChild(t)
       }`
     });
     // TODO: use insertBefore instead of appendChild? 
   document.getElementById('done').style.display = 'block';
   setStorage(newTitle);
+  window.close();
 }
 
 function setStorage(title) {
