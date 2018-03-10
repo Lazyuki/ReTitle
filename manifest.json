@@ -1,13 +1,22 @@
 {
   "manifest_version": 2,
 
-  "name": "Rename Tab Title",
-  "description": "This extension makes it easy to change current tab's title",
-  "version": "2.0",
+  "name": "Tab ReTitle",
+  "short_name": "ReTitle",
+  "description": "Change tab titles easily!",
+  "version": "1.0.0",
+  "author": "Lazyuki",
 
   "browser_action": {
-    "default_icon": "icon.png",
+    "default_icon": "./images/icon256.png",
     "default_popup": "popup.html"
+  },
+  "icons": { 
+    "16": "./images/icon16.png",
+    "32": "./images/icon32.png",
+    "64": "./images/icon64.png",
+    "128": "./images/icon128.png",
+    "256": "./images/icon256.png"
   },
   "background": {
     "scripts": ["background.js"]

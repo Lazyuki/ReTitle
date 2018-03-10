@@ -1,6 +1,3 @@
-function checkAndUpdate(tabId, url) {
-}
-
 chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
   if (info.title) {
     let url = tab.url;
