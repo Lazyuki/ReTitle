@@ -1,4 +1,4 @@
-const DOMAIN_REGEX = /https?:\/\/(\S*\.)?([^.\s]+\.[a-z]+)($|\/.*)/;
+const REGEX_DOMAIN = /https?:\/\/(?:\S*\.)?([^.\s]+\.[a-z]+)(?:$|\/.*)/;
 
 function rename(newTitle, domain) {
   chrome.tabs.executeScript(null,
@@ -30,10 +30,13 @@ function setStorage(title, domain) {
     let obj = {};
     let url = tabs[0].url;
     if (domain) { // only for domain
-      let urlDomain = url.match(DOMAIN_REGEX)[2];
-      obj[`*${urlDomain}*`] = title;
+      let match = url.match(REGEX_DOMAIN);
+      if (!match) return; // Not valid domain, e.g. local files
+      let urlDomain = match[1]
+      console.log(urlDomain)
+      obj[`*${urlDomain}*`] = {title:title};
     } else {
-      obj[url] = title;
+      obj[url] = {title:title};
     }
     chrome.storage.sync.set(obj);
   })

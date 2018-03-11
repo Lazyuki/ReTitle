@@ -19,7 +19,7 @@ chrome.storage.sync.get(function (items) {
     rm.appendChild(document.createTextNode('remove'));
     a.appendChild(document.createTextNode(url));
     li.appendChild(a);
-    li.appendChild(document.createTextNode(`: ${items[url]}`));
+    li.appendChild(document.createTextNode(`: ${items[url]['title']}`));
     li.appendChild(rm);
     ul.appendChild(li);
   }
