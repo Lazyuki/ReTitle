@@ -1,4 +1,4 @@
-const REGEX_DOMAIN = /https?:\/\/(?:\S*\.)?([^.\s]+\.[a-z]+)(?:$|\/.*)/;
+const REGEX_DOMAIN = /https?:\/\/(?:[^\s/]*\.)?([^./\s]+\.[a-z]+)(?:$|\/.*)/;
 
 chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
   if (info.title) {

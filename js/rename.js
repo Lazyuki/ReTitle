@@ -1,4 +1,4 @@
-const REGEX_DOMAIN = /https?:\/\/(?:\S*\.)?([^.\s]+\.[a-z]+)(?:$|\/.*)/;
+const REGEX_DOMAIN = /https?:\/\/(?:[^\s/]*\.)?([^./\s]+\.[a-z]+)(?:$|\/.*)/;
 
 function rename(newTitle, domain) {
   chrome.tabs.executeScript(null,
