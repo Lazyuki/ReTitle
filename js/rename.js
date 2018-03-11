@@ -1,7 +1,7 @@
 const REGEX_DOMAIN = /https?:\/\/(?:[^\s/]*\.)?([^./\s]+\.[a-z]+)(?:$|\/.*)/;
 
 function rename(newTitle, domain) {
-  chrome.tabs.executeScript(null,
+  browser.tabs.executeScript(null,
     {code:`
       if (document.title) {
         document.title='${newTitle}';
@@ -23,7 +23,7 @@ function rename(newTitle, domain) {
 }
 
 function setStorage(title, domain) {
-  chrome.tabs.query({
+  browser.tabs.query({
     active: true,
     currentWindow: true
   }, function(tabs) {
@@ -38,7 +38,7 @@ function setStorage(title, domain) {
     } else {
       obj[url] = {title:title};
     }
-    chrome.storage.sync.set(obj);
+    browser.storage.sync.set(obj);
   })
 }
 

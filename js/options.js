@@ -1,5 +1,5 @@
 let ul = document.getElementsByTagName('ul')[0];
-chrome.storage.sync.get(function (items) {
+browser.storage.sync.get(function (items) {
   for (let url in items) {
     let li = document.createElement('li');
     let a = document.createElement('a');
@@ -13,7 +13,7 @@ chrome.storage.sync.get(function (items) {
     li.id = url;
     rm.addEventListener('click', function(e) {
       e.preventDefault();
-      chrome.storage.sync.remove(url);
+      browser.storage.sync.remove(url);
       document.getElementById(url).remove();
     });
     rm.appendChild(document.createTextNode('remove'));

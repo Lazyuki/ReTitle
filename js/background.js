@@ -1,9 +1,9 @@
 const REGEX_DOMAIN = /https?:\/\/(?:[^\s/]*\.)?([^./\s]+\.[a-z]+)(?:$|\/.*)/;
 
-chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
+browser.tabs.onUpdated.addListener(function (tabId, info, tab) {
   if (info.title) {
     let url = tab.url;
-    chrome.storage.sync.get(url, function (items) {
+    browser.storage.sync.get(url, function (items) {
       if (items[url]) { // Exact URL match takes precedence over domain-level titles.
         let title = items[url]['title'];
         if (title == info.title) return; // Unnecessary
@@ -12,7 +12,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
         let match = url.match(REGEX_DOMAIN);
         if (!match) return;
         url = `*${match[1]}*`;
-        chrome.storage.sync.get(url, function (domItems) {
+        browser.storage.sync.get(url, function (domItems) {
           if (domItems[url]) {
             let title = domItems[url]['title'];
             if (title == info.title) return;
@@ -25,7 +25,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
 })
 
 function insertTitle(tabId, title) {
-  chrome.tabs.executeScript(tabId,
+  browser.tabs.executeScript(tabId,
     {code:`
       if (document.title) {
         document.title='${title}';
@@ -61,7 +61,7 @@ function injectTitle({tabId=null, newTitle, delay=false, prepend=false}) {
   } else {
     var setTitle = `document.title = '${newTitle}'`;
   }
-  chrome.tabs.executeScript(tabId,
+  browser.tabs.executeScript(tabId,
     {code:`
       if (document.title) {
         ${setTitle}
