@@ -10,20 +10,58 @@
         margin: 10px;
         white-space: nowrap;
       }
-
+      img {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        display: block;
+        transition: 0.3s;
+        cursor:pointer;
+        width: 20px;
+      }
+      img:hover {
+        transform: rotate(45deg);
+      }
       h1 {
         font-size: 15px;
         text-align: center;
+      }
+      label {
+        padding:5px;
+        display:block; 
+        cursor:pointer;
+      }
+
+      label:hover {
+        color: #ffc87f;
+      }
+      .btn {
+        border: 1px solid white;
+        border-radius: 5px;
+        display: inline-block;
+        padding: 3px 10px;
+        cursor: pointer;
+        margin-top: 5px;
+        transition: 0.3s;
+        background:none;
+        color: white;
+      }
+      .btn:hover {
+        color: #659fb9;
+        background: white;
       }
     </style>
   </head>
 
   <body>
     <h1>Set new title</h1>
+    <img id="gear" src="./images/gear.png" />
     <form id="form">
-      New Title: <input type="text" id="title" placeholder="new title" autofocus><br />
-      <input type="checkbox" name="domain" checked="checked">Set for the domain<br />
-      <input type="submit" value="set">
+      New Title: <input type="text" id="title" placeholder="new title"><br />
+      <label><input type="checkbox" name="domain">Set for the domain</label>
+      <label><input type="checkbox" name="onetime">Only this time</label>
+      <label><input type="checkbox" name="tablock">Set for this tab</label>
+      <input class="btn" type="submit" value="set">
     </form>
   </body>
 </html>
