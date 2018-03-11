@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+<!DOCTYPE HTML5>
 <html>
   <head>
     <title>
@@ -12,8 +12,19 @@
         margin: 10px;
         white-space: nowrap;
       }
+      label {
+        padding:5px;
+        display:block; 
+        cursor:pointer;
+      }
 
-      h1 {
+      label:hover {
+        color: #ffc87f;
+      }
+      #save {
+        margin: 5px;
+      }
+      h2 {
         font-size: 15px;
         text-align: center;
       }
@@ -27,7 +38,7 @@
       a {
         color: white;
       }
-      .remove {
+      .btn {
         border: 1px solid white;
         border-radius: 5px;
         display: inline-block;
@@ -36,13 +47,19 @@
         margin-left: 3px;
         transition: 0.3s;
       }
-      .remove:hover {
+      .btn:hover {
         color: #659fb9;
         background: white;
       }
     </style>
   </head>
   <body>
+    <h2>Default options</h2>
+    <label><input type="checkbox" id="domain">Set for the domain</label>
+    <label><input type="checkbox" id="onetime">Only this time</label>
+    <label><input type="checkbox" id="tablock">Set for this tab</label>
+    <div id="save" class="btn">save</div>
+    <h2>Saved titles</h2>
     <div id="Saved Titles">
       <ul>
       </ul>

@@ -3,8 +3,12 @@ const REGEX_DOMAIN = /https?:\/\/(?:[^\s/]*\.)?([^./\s]+\.[a-z]+)(?:$|\/.*)/;
 chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
   if (info.title) {
     let url = tab.url;
-    chrome.storage.sync.get(url, function (items) {
-      if (items[url]) { // Exact URL match takes precedence over domain-level titles.
+    chrome.storage.sync.get(function (items) {
+      if (items[`#${tabId}`]) {
+        let title = items[`#${tabId}`]['title'];
+        if (title == info.title) return;
+        insertTitle(tabId, title);
+      } else if (items[url]) { // Exact URL match takes precedence over domain-level titles.
         let title = items[url]['title'];
         if (title == info.title) return; // Unnecessary
         insertTitle(tabId, title);
@@ -23,6 +27,16 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
     })
   }
 })
+
+chrome.tabs.onRemoved.addListener(function (tabId, info) {
+  if (info.isWindowClosing) {
+    chrome.storage.sync.get(`#${tabId}`, function (items) {
+      if (items[`#${tabId}`]) {
+        chrome.storage.sync.remove(`#${tabId}`);
+      }  
+    })
+  }
+}) 
 
 function insertTitle(tabId, title) {
   chrome.tabs.executeScript(tabId,
