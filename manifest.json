@@ -4,7 +4,7 @@
   "name": "Tab ReTitle",
   "short_name": "ReTitle",
   "description": "Change tab titles easily!",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "Lazyuki",
 
   "browser_action": {
@@ -26,18 +26,19 @@
     "chrome_style": true
   },
   "commands": {
-    "_execute_browser_action": {
+    "setTitle": {
       "suggested_key": {
-        "default": "Ctrl+Shift+T",
-        "mac": "MacCtrl+Shift+T"
+        "default": "Ctrl+Shift+C",
+        "mac": "MacCtrl+Shift+C"
       },
-      "description": "Opens popup.html"
+      "description": "Set new title"
     }
   },
   "permissions": [
     "activeTab",
     "tabs",
     "storage",
-    "<all_urls>"
+    "<all_urls>",
+    "contextMenus"
   ]
 }
