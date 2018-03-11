@@ -4,13 +4,17 @@
   "name": "Tab ReTitle",
   "short_name": "ReTitle",
   "description": "Change tab titles easily!",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "Lazyuki",
-
   "browser_action": {
     "default_icon": "./images/icon256.png",
     "default_popup": "popup.html"
   },
+  "applications": {
+  "gecko": {
+    "id": "borderify@example.com"
+  }
+},
   "icons": { 
     "16": "./images/icon16.png",
     "32": "./images/icon32.png",
@@ -28,8 +32,8 @@
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
-        "default": "Ctrl+Shift+F",
-        "mac": "MacCtrl+Shift+F"
+        "default": "Ctrl+Shift+T",
+        "mac": "MacCtrl+Shift+T"
       },
       "description": "Opens popup.html"
     }

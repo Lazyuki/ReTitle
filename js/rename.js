@@ -19,11 +19,10 @@ function rename(newTitle, domain) {
       }`
     });
   setStorage(newTitle, domain);
-  window.close();
 }
 
 function setStorage(title, domain) {
-  browser.tabs.query({
+  chrome.tabs.query({
     active: true,
     currentWindow: true
   }, function(tabs) {
@@ -33,12 +32,11 @@ function setStorage(title, domain) {
       let match = url.match(REGEX_DOMAIN);
       if (!match) return; // Not valid domain, e.g. local files
       let urlDomain = match[1]
-      console.log(urlDomain)
       obj[`*${urlDomain}*`] = {title:title};
     } else {
       obj[url] = {title:title};
     }
-    browser.storage.sync.set(obj);
+    chrome.storage.sync.set(obj);
   })
 }
 

@@ -1,1 +1,1 @@
-# ReTitle: Google Chrome Extension
+# ReTitle : Firefox Add-on
