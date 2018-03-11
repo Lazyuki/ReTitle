@@ -1,4 +1,6 @@
-function rename(newTitle) {
+const DOMAIN_REGEX = /https?:\/\/(\S*\.)?([^.\s]+\.[a-z]+)($|\/.*)/;
+
+function rename(newTitle, domain) {
   chrome.tabs.executeScript(null,
     {code:`
       if (document.title) {
@@ -16,18 +18,23 @@ function rename(newTitle) {
         h.appendChild(t)
       }`
     });
-  document.getElementById('done').style.display = 'block';
-  setStorage(newTitle);
+  setStorage(newTitle, domain);
   window.close();
 }
 
-function setStorage(title) {
+function setStorage(title, domain) {
   chrome.tabs.query({
     active: true,
     currentWindow: true
   }, function(tabs) {
     let obj = {};
-    obj[tabs[0].url] = title;
+    let url = tabs[0].url;
+    if (domain) { // only for domain
+      let urlDomain = url.match(DOMAIN_REGEX)[2];
+      obj[`*${urlDomain}*`] = title;
+    } else {
+      obj[url] = title;
+    }
     chrome.storage.sync.set(obj);
   })
 }
@@ -35,5 +42,6 @@ function setStorage(title) {
 let form = document.getElementById('form');
 form.addEventListener('submit', function(e) {
   e.preventDefault();
-  rename(form.elements[0].value);
+  let domain = form.elements[1].checked;
+  rename(form.elements[0].value, domain);
 });
