@@ -21,6 +21,10 @@
   "background": {
     "scripts": ["background.js"]
   },
+  "options_ui": {
+    "page": "options.html",
+    "chrome_style": true
+  },
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
