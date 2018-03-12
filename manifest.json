@@ -28,8 +28,9 @@
   "commands": {
     "setTitle": {
       "suggested_key": {
-        "default": "Ctrl+Shift+C",
-        "mac": "MacCtrl+Shift+C"
+        "default": "Ctrl+Shift+X",
+        "mac": "MacCtrl+Shift+X",
+        "linux": "Ctrl+Shift+X"
       },
       "description": "Set new title"
     }

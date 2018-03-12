@@ -1,10 +1,10 @@
-const REGEX_DOMAIN = /https?:\/\/(?:[^\s/]*\.)?([^./\s]+\.[a-z]+)(?:$|\/.*)/;
+const REGEX_DOMAIN = /https?:\/\/([^\s/]+)(?:$|\/.*)/; 
 
 chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
   if (info.title) {
     let url = tab.url;
     chrome.storage.sync.get(function (items) {
-      if (items[`#${tabId}`]) {
+      if (items[`#${tabId}`]) { // Tab lock has the highest priority
         let title = items[`#${tabId}`]['title'];
         if (title == info.title) return;
         insertTitle(tabId, title);
@@ -28,6 +28,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
   }
 })
 
+// If closing the window, clean up tab lock titles
 chrome.tabs.onRemoved.addListener(function (tabId, info) {
   if (info.isWindowClosing) {
     chrome.storage.sync.get(`#${tabId}`, function (items) {
@@ -38,6 +39,7 @@ chrome.tabs.onRemoved.addListener(function (tabId, info) {
   }
 }) 
 
+// Listen for shortcut
 chrome.commands.onCommand.addListener(function(command) {
   if (command == 'setTitle') {
    let title = prompt('Enter a temporary title');
