@@ -1,69 +1,101 @@
-<!DOCTYPE HTML5>
+<!DOCTYPE HTML>
 <html>
   <head>
-    <title>
-      Options
-    </title>
+    <title>Options</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="lib/materialize.min.css">
+    <script type="text/javascript" src="lib/jquery-3.3.1.min.js" defer></script>
+    <script type="text/javascript" src="lib/materialize.min.js" defer></script>
     <script src="js/options.js" defer></script>
     <style type="text/css">
       body {
-        color: white;
-        background: #659fb9;
-        margin: 10px;
-        white-space: nowrap;
+        margin: 10px 10px 0;
+        min-width: 200px;
       }
-      label {
-        padding:5px;
-        display:block; 
-        cursor:pointer;
+      .btn.badge {
+        margin: 0;
       }
-
-      label:hover {
-        color: #ffc87f;
+      .btn.badge:hover {
       }
       #save {
-        margin: 5px;
+        display: table;
+        margin: 20px auto;
+      }
+      label:hover {
+        color: #2b2b2b;
+      }
+      form {
+        margin-top: 0;
+      }
+      hr {
+        margin: 20px;
       }
       h2 {
         font-size: 15px;
         text-align: center;
+        margin: px 0;
       }
       ul {
         padding: 0;
+        max-height: 290px;
+      }
+      ul.collection {
+        overflow-y: scroll;
       }
       li {
         list-style: none;
-        padding: 3px 0;
+        font-size: 14px;
+        overflow: hidden;
+        padding-top: 5px;
       }
-      a {
-        color: white;
+      li:hover {
+        background: rgba(0, 0, 128, 0.1)
       }
-      .btn {
-        border: 1px solid white;
-        border-radius: 5px;
-        display: inline-block;
-        padding: 3px;
+      li > a { 
+        line-height: 22px;
+      }
+      .material-icons {
         cursor: pointer;
-        margin-left: 3px;
-        transition: 0.3s;
+        color: #ff6767;
+        transition: color 0.2s;
+        padding: 0 3px;
       }
-      .btn:hover {
-        color: #659fb9;
-        background: white;
+      .material-icons:hover {
+        color: #ff1f1f;
       }
     </style>
   </head>
+
   <body>
-    <h2>Default options</h2>
-    <label><input type="checkbox" id="domain">Set for the domain</label>
-    <label><input type="checkbox" id="onetime">Only this time</label>
-    <label><input type="checkbox" id="tablock">Set for this tab</label>
-    <div id="save" class="btn">save</div>
-    <h2>Saved titles</h2>
-    <div id="Saved Titles">
-      <ul>
-      </ul>
-    </div>
+    <div class="row">
+      <h2>Default Options</h2>
+      <form class="col s12" id="form">
+        <p>
+          <input class="with-gap" name="option" type="radio" id="domain" />
+          <label for="domain">Set for this domain</label>
+        </p>
+        <p>
+          <input class="with-gap" name="option" type="radio" id="onetime" />
+          <label for="onetime">Only this time</label>
+        </p>
+        <p>
+          <input class="with-gap" name="option" type="radio" id="tablock" />
+          <label for="tablock">Set for this tab</label>
+        </p>
+        <p>
+          <input class="with-gap" name="option" type="radio" id="exact" />
+          <label for="exact">Only exact match</label>
+        </p>
+        <div class="btn" id="save" type="submit">SAVE</div>
+      </form>
+      <hr />
+      <h2>Saved titles</h2>
+      <div id="savedTitles">
+        <ul class="collection">
+        </ul>
+      </div>
+    <div class="row">
   </body>
+</html>
 </html>
 

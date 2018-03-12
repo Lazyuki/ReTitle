@@ -1,6 +1,7 @@
 const REGEX_DOMAIN = /https?:\/\/(?:[^\s/]*\.)?([^./\s]+\.[a-z]+)(?:$|\/.*)/;
 
 function rename(newTitle, domain, onetime, tablock) {
+  if (newTitle == '') return;
   chrome.tabs.executeScript(null,
     {code:`
       if (document.title) {
@@ -53,27 +54,31 @@ function setStorage(title, domain) {
   })
 }
 
-let form = document.getElementById('form');
-let domain = form.elements['domain'];
-let onetime = form.elements['onetime'];
-let tablock = form.elements['tablock'];
-form.addEventListener('submit', function(e) {
+let radios = $(':radio');
+let domain = radios.eq(0);
+let onetime = radios.eq(1);
+let tablock = radios.eq(2);
+let exact = radios.eq(3);
+$('#form').on('submit', function(e) {
   e.preventDefault();
-  rename(form.elements[0].value, domain.checked, onetime.checked, tablock.checked);
+  rename(
+    $('#title').val(),
+    domain.is(':checked'),
+    onetime.is(':checked'),
+    tablock.is(':checked'));
 });
 
 // Set link to the options page
-document.getElementById('gear').addEventListener('click', () => 
-  chrome.runtime.openOptionsPage());
+$('#gear').on('click', () => chrome.runtime.openOptionsPage());
 
 // Set default checkboxes
 chrome.storage.sync.get('options', (items) => {
   if (items['options']) {
     let options = items['options'];
-    if (options.domain) domain.checked = true;
-    if (options.onetime) onetime.checked = true;
-    if (options.tablock) tablock.checked = true;
+    if (options.domain) domain.prop("checked", true);
+    if (options.onetime) onetime.prop("checked", true);
+    if (options.tablock) tablock.prop("checked", true);
   } else {
-    domain.checked = true;
+    domain.prop("checked", true);
   }
 })
