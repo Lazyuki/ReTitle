@@ -8,18 +8,18 @@
     <script type="text/javascript" src="lib/materialize.min.js" defer></script>
     <script src="js/options.js" defer></script>
     <style type="text/css">
-      body {
+      main {
         margin: 10px 10px 0;
         min-width: 200px;
-      }
-      .btn.badge {
-        margin: 0;
-      }
-      .btn.badge:hover {
       }
       #save {
         display: table;
         margin: 20px auto;
+      }
+      #check {
+        color: #9bff9b;
+        display: none;
+        position: absolute;
       }
       label:hover {
         color: #2b2b2b;
@@ -33,11 +33,14 @@
       h2 {
         font-size: 15px;
         text-align: center;
-        margin: px 0;
+        margin: 5px 0;
+      }
+      #savedTitles {
+        margin: 20px 0 30px;
       }
       ul {
         padding: 0;
-        max-height: 290px;
+        max-height: 220px;
       }
       ul.collection {
         overflow-y: scroll;
@@ -52,49 +55,112 @@
         background: rgba(0, 0, 128, 0.1)
       }
       li > a { 
+        padding-left: 5px;
         line-height: 22px;
       }
-      .material-icons {
+      #keyboard { 
+        cursor: pointer;
+        color: #688fe6;
+        transition: color 0.2s;
+        display: table;
+        font-size: 30px;
+        margin: 0 auto;
+      }
+      #keyboard:hover {
+        color: #5eacef;
+      }
+      .material-icons.red-icon {
         cursor: pointer;
         color: #ff6767;
         transition: color 0.2s;
         padding: 0 3px;
       }
-      .material-icons:hover {
+      .material-icons.red-icon:hover {
         color: #ff1f1f;
+      }
+      footer {
+        background:#688fe6;
+        min-height: 40px;
+        padding-top: 10px;
+        color: white;
+        margin-top: -10px;
+        line-height: 20px;
+      }
+      .chip {
+        height: 20px;
+        line-height: 20px;
+        background: white;
+        transition: background-color 0.2s;
+        margin:0;
+      }
+      .row .col {
+        padding: 0 0.2em;
+      }
+      .container {
+        margin-bottom: 5px;
+      }
+      .chip:hover {
+        background-color: #dde7ff;
+      }
+      .chip>img {
+        height: 20px;
+        width: 20px;
       }
     </style>
   </head>
 
   <body>
-    <div class="row">
-      <h2>Default Options</h2>
-      <form class="col s12" id="form">
-        <p>
-          <input class="with-gap" name="option" type="radio" id="domain" />
-          <label for="domain">Set for this domain</label>
-        </p>
-        <p>
-          <input class="with-gap" name="option" type="radio" id="onetime" />
-          <label for="onetime">Only this time</label>
-        </p>
-        <p>
-          <input class="with-gap" name="option" type="radio" id="tablock" />
-          <label for="tablock">Set for this tab</label>
-        </p>
-        <p>
-          <input class="with-gap" name="option" type="radio" id="exact" />
-          <label for="exact">Only exact match</label>
-        </p>
-        <div class="btn" id="save" type="submit">SAVE</div>
-      </form>
-      <hr />
-      <h2>Saved titles</h2>
-      <div id="savedTitles">
-        <ul class="collection">
-        </ul>
+    <main>
+      <div class="row">
+        <h2>Default Option</h2>
+        <form class="col s12" id="form">
+          <p>
+            <input class="with-gap" name="option" type="radio" id="domain" />
+            <label for="domain">Set for this domain</label>
+          </p>
+          <p>
+            <input class="with-gap" name="option" type="radio" id="onetime" />
+            <label for="onetime">Only this time</label>
+          </p>
+          <p>
+            <input class="with-gap" name="option" type="radio" id="tablock" />
+            <label for="tablock">Set for this tab</label>
+          </p>
+          <p>
+            <input class="with-gap" name="option" type="radio" id="exact" />
+            <label for="exact">Only exact match</label>
+          </p>
+          <div class="btn" id="save" type="submit">SAVE<i class="material-icons" id="check">check</i></div>
+        </form>
+        <hr />
+        <h2>Saved Titles</h2>
+        <div id="savedTitles">
+          <ul class="collection">
+          </ul>
+        </div>
+        <hr />
+        <h2>Edit Keyboard Shortcuts<i class="material-icons" id="keyboard">keyboard</i></h2>
       </div>
-    <div class="row">
+     </main>
+    <footer>
+      <div class="footer-copyright">
+        <div class="row container">
+          <div class="col s4 center">
+            <a class="chip" href="https://chrome.google.com/webstore/detail/tab-retitle/hilgambgdpjgljhjdaccadahckpdiapo">
+              <img src="images/chrome.png">Rate it!</a>
+          </div>
+          <div class="col s4 center">
+            <a class="chip" href="https://addons.mozilla.org/en-US/firefox/addon/tab-retitle/">
+              <img src="images/firefox.png">FireFox</a>
+          </div>
+          <div class="col s4 center">
+            <a class="chip" href="https://github.com/Lazyuki/ReTitle/tree/master">
+              <img src="images/GitHub-Mark-32px.png">GitHub</a>
+          </div>
+        </div>
+        <div class="center">&copy; 2018 Lazyuki</div>
+      </div>
+    </footer>
   </body>
 </html>
 </html>
