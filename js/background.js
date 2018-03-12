@@ -38,8 +38,21 @@ chrome.tabs.onRemoved.addListener(function (tabId, info) {
   }
 }) 
 
-//chrome.contextMenus.onClicked.addListener(function(info, tab) {
-//})
+chrome.commands.onCommand.addListener(function(command) {
+  if (command == 'setTitle') {
+   let title = prompt('Enter a temporary title');
+   if (title) insertTitle(null,title);  
+  } 
+});
+
+// Context menu
+chrome.contextMenus.create({id:'ctxmnu', title:'Set temporary title'});
+chrome.contextMenus.onClicked.addListener(function (info, tab) {
+  if (tab) {
+    let title = prompt('Enter a temporary title');
+    if (title) insertTitle(tab.id, title);
+  }
+})
 
 function insertTitle(tabId, title) {
   chrome.tabs.executeScript(tabId,

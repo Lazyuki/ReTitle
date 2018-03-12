@@ -2,66 +2,68 @@
 <html>
   <head>
     <title>ReTitle</title>
+    <link rel="stylesheet" type="text/css" href="lib/materialize.min.css">
+    <script type="text/javascript" src="lib/jquery-3.3.1.min.js" defer></script>
+    <script type="text/javascript" src="lib/materialize.min.js" defer></script>
     <script src="js/rename.js" defer></script>
     <style type="text/css">
       body {
-        color: white;
-        background: #659fb9;
-        margin: 10px;
-        white-space: nowrap;
+        margin: 10px 10px 0;
+        min-width: 200px;
       }
       img {
         position: absolute;
-        top: 5px;
-        right: 5px;
+        top: 10px;
+        right: 10px;
         display: block;
         transition: 0.3s;
         cursor:pointer;
         width: 20px;
       }
+      .input-field {
+        margin-bottom: -15px;
+      }
       img:hover {
         transform: rotate(45deg);
       }
-      h1 {
-        font-size: 15px;
-        text-align: center;
-      }
-      label {
-        padding:5px;
-        display:block; 
-        cursor:pointer;
-      }
-
       label:hover {
-        color: #ffc87f;
+        color: #2b2b2b;
       }
       .btn {
-        border: 1px solid white;
-        border-radius: 5px;
-        display: inline-block;
-        padding: 3px 10px;
-        cursor: pointer;
-        margin-top: 5px;
-        transition: 0.3s;
-        background:none;
-        color: white;
-      }
-      .btn:hover {
-        color: #659fb9;
-        background: white;
+        display: block;
+        margin: 10px auto -10px;
       }
     </style>
   </head>
 
   <body>
-    <h1>Set new title</h1>
     <img id="gear" src="./images/gear.png" />
-    <form id="form">
-      New Title: <input type="text" id="title" placeholder="new title"><br />
-      <label><input type="checkbox" name="domain">Set for the domain</label>
-      <label><input type="checkbox" name="onetime">Only this time</label>
-      <label><input type="checkbox" name="tablock">Set for this tab</label>
-      <input class="btn" type="submit" value="set">
-    </form>
+    <div class="row">
+      <form class="col s12" id="form">
+        <div class="row">
+          <div class="input-field col s12">
+            <input id="title" type="text" class="validate">
+            <label for="title">New Title</label>
+          </div>
+        </div>
+        <p>
+          <input class="with-gap" name="option" type="radio" id="domain" />
+          <label for="domain">Set for this domain</label>
+        </p>
+        <p>
+          <input class="with-gap" name="option" type="radio" id="onetime" />
+          <label for="onetime">Only this time</label>
+        </p>
+        <p>
+          <input class="with-gap" name="option" type="radio" id="tablock" />
+          <label for="tablock">Set for this tab</label>
+        </p>
+        <p>
+          <input class="with-gap" name="option" type="radio" id="exact" />
+          <label for="exact">Only exact match</label>
+        </p>
+        <input class="btn" type="submit" value="set">
+      </form>
+    <div class="row">
   </body>
 </html>
