@@ -10,11 +10,6 @@
     "default_icon": "./images/icon256.png",
     "default_popup": "popup.html"
   },
-  "applications": {
-  "gecko": {
-    "id": "borderify@example.com"
-  }
-},
   "icons": { 
     "16": "./images/icon16.png",
     "32": "./images/icon32.png",
@@ -42,6 +37,7 @@
     "activeTab",
     "tabs",
     "storage",
+    "contextMenus",
     "<all_urls>"
   ]
 }

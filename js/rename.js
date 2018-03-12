@@ -31,7 +31,7 @@ function rename(newTitle, domain, onetime, tablock) {
   } else if (!onetime) {
     setStorage(newTitle, domain);
   }
-  window.close();
+  setTimeout(() => window.close(), 500);
 }
 
 function setStorage(title, domain) {

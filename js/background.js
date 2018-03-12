@@ -38,6 +38,9 @@ chrome.tabs.onRemoved.addListener(function (tabId, info) {
   }
 }) 
 
+//chrome.contextMenus.onClicked.addListener(function(info, tab) {
+//})
+
 function insertTitle(tabId, title) {
   chrome.tabs.executeScript(tabId,
     {code:`
