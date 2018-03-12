@@ -8,6 +8,11 @@
     <script type="text/javascript" src="lib/materialize.min.js" defer></script>
     <script src="js/options.js" defer></script>
     <style type="text/css">
+      body {
+        width: 500px;
+        margin: 0 auto;
+        overflow:hidden;
+      }
       main {
         margin: 10px 10px 0;
         min-width: 200px;
@@ -110,57 +115,60 @@
   </head>
 
   <body>
-    <main>
-      <div class="row">
-        <h2>Default Option</h2>
-        <form class="col s12" id="form">
-          <p>
-            <input class="with-gap" name="option" type="radio" id="domain" />
-            <label for="domain">Set for this domain</label>
-          </p>
-          <p>
-            <input class="with-gap" name="option" type="radio" id="onetime" />
-            <label for="onetime">Only this time</label>
-          </p>
-          <p>
-            <input class="with-gap" name="option" type="radio" id="tablock" />
-            <label for="tablock">Set for this tab</label>
-          </p>
-          <p>
-            <input class="with-gap" name="option" type="radio" id="exact" />
-            <label for="exact">Only exact match</label>
-          </p>
-          <div class="btn" id="save" type="submit">SAVE<i class="material-icons" id="check">check</i></div>
-        </form>
-        <hr />
-        <h2>Saved Titles</h2>
-        <div id="savedTitles">
-          <ul class="collection">
-          </ul>
+    <div class="card">
+      <main>
+        <div class="row">
+          <h2>Default Option</h2>
+          <form class="col s12" id="form">
+            <p>
+              <input class="with-gap" name="option" type="radio" id="domain" />
+              <label for="domain">Set for this domain</label>
+            </p>
+            <p>
+              <input class="with-gap" name="option" type="radio" id="onetime" />
+              <label for="onetime">Only this time</label>
+            </p>
+            <p>
+              <input class="with-gap" name="option" type="radio" id="tablock" />
+              <label for="tablock">Set for this tab</label>
+            </p>
+            <p>
+              <input class="with-gap" name="option" type="radio" id="exact" />
+              <label for="exact">Only exact match</label>
+            </p>
+            <div class="btn" id="save" type="submit">SAVE<i class="material-icons" id="check">check</i></div>
+          </form>
+          <!-- <div class="hr"></div> -->
+          <hr class="col s12">
+          <h2>Saved Titles</h2>
+          <div id="savedTitles">
+            <ul class="collection">
+            </ul>
+          </div>
+          <hr class="hide"/>
+          <h2 class="hide">Edit Keyboard Shortcuts<i class="material-icons" id="keyboard">keyboard</i></h2>
         </div>
-        <hr />
-        <h2>Edit Keyboard Shortcuts<i class="material-icons" id="keyboard">keyboard</i></h2>
-      </div>
-     </main>
-    <footer>
-      <div class="footer-copyright">
-        <div class="row container">
-          <div class="col s4 center">
-            <a class="chip" href="https://chrome.google.com/webstore/detail/tab-retitle/hilgambgdpjgljhjdaccadahckpdiapo">
-              <img src="images/chrome.png">Rate it!</a>
+       </main>
+      <footer>
+        <div class="footer-copyright">
+          <div class="row container">
+            <div class="col s4 center">
+              <a class="chip" href="https://addons.mozilla.org/en-US/firefox/addon/tab-retitle/">
+                <img src="images/firefox.png">Rate it!</a>
+            </div>
+            <div class="col s4 center">
+              <a class="chip" href="https://chrome.google.com/webstore/detail/tab-retitle/hilgambgdpjgljhjdaccadahckpdiapo">
+                <img src="images/chrome.png">Chrome</a>
+            </div>
+            <div class="col s4 center">
+              <a class="chip" href="https://github.com/Lazyuki/ReTitle/tree/master">
+                <img src="images/GitHub-Mark-32px.png">GitHub</a>
+            </div>
           </div>
-          <div class="col s4 center">
-            <a class="chip" href="https://addons.mozilla.org/en-US/firefox/addon/tab-retitle/">
-              <img src="images/firefox.png">FireFox</a>
-          </div>
-          <div class="col s4 center">
-            <a class="chip" href="https://github.com/Lazyuki/ReTitle/tree/master">
-              <img src="images/GitHub-Mark-32px.png">GitHub</a>
-          </div>
+          <div class="center">&copy; 2018 Lazyuki</div>
         </div>
-        <div class="center">&copy; 2018 Lazyuki</div>
-      </div>
-    </footer>
+      </footer>
+    </div>
   </body>
 </html>
 </html>

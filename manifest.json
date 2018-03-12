@@ -4,7 +4,7 @@
   "name": "Tab ReTitle",
   "short_name": "ReTitle",
   "description": "Change tab titles easily!",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "author": "Lazyuki",
   "browser_action": {
     "default_icon": "./images/icon256.png",

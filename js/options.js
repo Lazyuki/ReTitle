@@ -15,7 +15,7 @@ $('#save').on('click', function(e) {
     exact:exact.is(':checked')
   }
   chrome.storage.sync.set({options:options});
-  $('#check').show().delay(1000).fadeOut(300);
+  $('#check').css('display', 'inline-block').delay(1000).fadeOut(300);
 });
 
 

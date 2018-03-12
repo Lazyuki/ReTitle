@@ -42,18 +42,20 @@ chrome.tabs.onRemoved.addListener(function (tabId, info) {
 // Listen for shortcut
 chrome.commands.onCommand.addListener(function(command) {
   if (command == 'setTitle') {
-   let title = prompt('Enter a temporary title');
-   if (title) insertTitle(null,title);  
+   chrome.tabs.executeScript({code : 'let title = prompt("Enter a temporary title"); if (title) document.title = title'});
+   // let title = prompt('Enter a temporary title');
+   // if (title) insertTitle(null,title);  
   } 
 });
 
 // Context menu
 chrome.contextMenus.create({id:'ctxmnu', title:'Set temporary title'});
 chrome.contextMenus.onClicked.addListener(function (info, tab) {
-  if (tab) {
-    let title = prompt('Enter a temporary title');
-    if (title) insertTitle(tab.id, title);
-  }
+  chrome.tabs.executeScript({code : 'let title2 = prompt("Enter a temporary title"); if (title2) document.title = title2'});
+  // if (tab) {
+  //   let title = prompt('Enter a temporary title');
+  //   if (title) insertTitle(tab.id, title);
+  // }
 })
 
 function insertTitle(tabId, title) {
