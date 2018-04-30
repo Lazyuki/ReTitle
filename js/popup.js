@@ -75,7 +75,7 @@ chrome.tabs.query({
       if (options.domain) domain.prop('checked', true);
       if (options.onetime) onetime.prop('checked', true);
       if (options.tablock) tablock.prop('checked', true);
-      if (options.exact) exact.prop('checked', true)
+      if (options.exact) exact.prop('checked', true);
     } else {
       onetime.prop("checked", true);
     }
@@ -91,8 +91,7 @@ chrome.tabs.query({
   $('small').text(currentTab.title);
 
   // focus (for firefox)
-
   setTimeout(() => {
-    document.querySelector('body').focus();
+    $('#title').focus();
   }, 100);
 });

@@ -20,6 +20,11 @@
   "background": {
     "scripts": ["js/background.js"]
   },
+  "applications": {
+  "gecko": {
+    "id": "borderify@example.com"
+  }
+},
   "options_ui": {
     "page": "options.html",
     "chrome_style": true
