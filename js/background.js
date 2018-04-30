@@ -30,9 +30,9 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
 
 // When closing a tab, clean up tab lock titles
 chrome.tabs.onRemoved.addListener(function (tabId, info) {
-  chrome.storage.sync.get(`#${tabId}`, function (items) {
-    if (items[`#${tabId}`]) {
-      chrome.storage.sync.remove(`#${tabId}`);
+  chrome.storage.sync.get(`Tab#${tabId}`, function (items) {
+    if (items[`Tab#${tabId}`]) {
+      chrome.storage.sync.remove(`Tab#${tabId}`);
     }  
   })
 }) 

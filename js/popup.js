@@ -89,10 +89,4 @@ chrome.tabs.query({
 
   // Set previous title
   $('small').text(currentTab.title);
-
-  // focus (for firefox)
-
-  setTimeout(() => {
-    document.querySelector('body').focus();
-  }, 100);
 });

@@ -6,7 +6,6 @@ let onetime = radios.eq(1);
 let tablock = radios.eq(2);
 let exact = radios.eq(3);
 
-
 // Import from bookmarks
 $('#importBookmarks').on('click', function() {
   // TODO: show alert about updating old names
@@ -60,24 +59,33 @@ chrome.storage.sync.get('options', (items) => {
   }
 })
 
+
 // Show saved titles
-let ul = $('#savedTitles > ul').eq(0);
-chrome.storage.sync.get(function (items) {
-  for (let url in items) {
-    if (url == 'options') continue;
-    let li = $('<li></li>').attr('id', url)
-    href = url;
-    if (url.startsWith('*')) {
-      href = '#';
+let setTitleList = (function f() {
+  let ul = $('#savedTitles > ul').eq(0);
+  chrome.storage.sync.get(function (items) {
+    for (let url in items) {
+      if (url == 'options') continue;
+      let li = $('<li></li>').attr('id', url)
+      let href = url;
+      if (url.startsWith('*')) {
+        href = '#';
+      }
+      let a = $('<a></a>').attr('href', href).text(url);
+      let rm = $('<span></span>').attr('class', 'secondary-content');
+      rm.append($('<i class="material-icons red-icon">delete</i>'))
+      rm.on('click', function(e) {
+        e.preventDefault();
+        chrome.storage.sync.remove(url);
+        $('#' + $.escapeSelector(`${url}`)).remove();
+      });
+      ul.append(li.append(a, `: ${items[url]['title']}`, rm))
     }
-    let a = $('<a></a>').attr('href', href).text(url);
-    let rm = $('<span></span>').attr('class', 'secondary-content');
-    rm.append($('<i class="material-icons red-icon">delete</i>'))
-    rm.on('click', function(e) {
-      e.preventDefault();
-      chrome.storage.sync.remove(url);
-      $('#' + $.escapeSelector(`${url}`)).remove();
-    });
-    ul.append(li.append(a, `: ${items[url]['title']}`, rm))
-  }
+  });
+  return f;
+})();
+// When the list is updated, update the view automatically
+chrome.storage.onChanged.addListener(() => {
+  $('#savedTitles > ul').empty();
+  setTitleList();
 });
