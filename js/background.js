@@ -4,8 +4,8 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
   if (info.title || info.status == 'complete') {
     let url = tab.url;
     chrome.storage.sync.get(function (items) {
-      if (items[`#${tabId}`]) { // Tab lock has the highest priority
-        let title = items[`#${tabId}`]['title'];
+      if (items[`Tab#${tabId}`]) { // Tab lock has the highest priority
+        let title = items[`Tab#${tabId}`]['title'];
         if (title == info.title) return;
         insertTitle(tabId, title);
       } else if (items[url]) { // Exact URL match takes precedence over domain-level titles.
@@ -28,15 +28,13 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
   }
 })
 
-// If closing the window, clean up tab lock titles
+// When closing a tab, clean up tab lock titles
 chrome.tabs.onRemoved.addListener(function (tabId, info) {
-  if (info.isWindowClosing) {
-    chrome.storage.sync.get(`#${tabId}`, function (items) {
-      if (items[`#${tabId}`]) {
-        chrome.storage.sync.remove(`#${tabId}`);
-      }  
-    })
-  }
+  chrome.storage.sync.get(`#${tabId}`, function (items) {
+    if (items[`#${tabId}`]) {
+      chrome.storage.sync.remove(`#${tabId}`);
+    }  
+  })
 }) 
 
 // Listen for shortcut
