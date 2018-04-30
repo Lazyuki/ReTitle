@@ -112,3 +112,14 @@ function injectTitle({tabId=null, newTitle, delay=false, prepend=false}) {
     }
   );
 }
+
+// UPDATEE PREVIOUSLY STORED TITLES ON EXTENSION UPDATE
+chrome.runtime.onInstalled.addListener((details) => {
+  chrome.storage.sync.get(function (items) {
+    for (let item in items) {
+      if (item.startsWith('#')) { // old tab lock mistake
+        chrome.storage.sync.remove(item);
+      }
+    }
+  })
+});
