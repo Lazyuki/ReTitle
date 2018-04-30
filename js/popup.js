@@ -30,7 +30,7 @@ function rename(newTitle, domain, onetime, tablock, exact) {
   if (tablock) {
     let obj = {};
     let id = currentTab.id;
-    obj[`#${id}`] = {title:newTitle};
+    obj[`Tab#${id}`] = {title:newTitle};
     chrome.storage.sync.set(obj, () => window.close());
   } else if (!onetime) {
     setStorage(newTitle, domain);
@@ -77,7 +77,7 @@ chrome.tabs.query({
       if (options.tablock) tablock.prop('checked', true);
       if (options.exact) exact.prop('checked', true)
     } else {
-      domain.prop("checked", true);
+      onetime.prop("checked", true);
     }
   })
 
@@ -86,4 +86,13 @@ chrome.tabs.query({
 
   // Set placeholder 
   $('#title').attr('placeholder', currentTab.title);
+
+  // Set previous title
+  $('small').text(currentTab.title);
+
+  // focus (for firefox)
+
+  setTimeout(() => {
+    document.querySelector('body').focus();
+  }, 100);
 });

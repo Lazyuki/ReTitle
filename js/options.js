@@ -1,10 +1,33 @@
 const REGEX_DOMAIN = /https?:\/\/([^\s/]+)(?:$|\/.*)/; 
-
 let radios = $(':radio');
+let checks = $(':checkbox');
 let domain = radios.eq(0);
 let onetime = radios.eq(1);
 let tablock = radios.eq(2);
 let exact = radios.eq(3);
+
+
+// Import from bookmarks
+$('#importBookmarks').on('click', function() {
+  // TODO: show alert about updating old names
+  chrome.bookmarks.getTree((treeRoots) => {
+    let obj = {};
+    treeRoots.forEach((treeRoot) => {
+      (function recurse(treeNode) {
+        if (treeNode.children) { // is a folder
+          treeNode.children.forEach((n) => {
+            recurse(n);
+          })
+        } else { // is a bookmark
+          if (treeNode.title != '') {
+            obj[treeNode.url] = {title:treeNode.title}; // TODO imported:true? or confirmation window with a count
+          }
+        }
+      }(treeRoot));
+    })
+    chrome.storage.sync.set(obj);
+  });
+})
 
 $('#save').on('click', function(e) {
   e.preventDefault();
@@ -24,7 +47,6 @@ $('#keyboard').on('click', function() {
   chrome.tabs.create({url: "chrome://extensions/shortcuts"});
 });
 
-
 // Set default checkboxes
 chrome.storage.sync.get('options', (items) => {
   if (items['options']) {
@@ -34,13 +56,12 @@ chrome.storage.sync.get('options', (items) => {
     if (options.tablock) tablock.prop("checked", true);
     if (options.exact) exact.prop("checked", true);
   } else {
-    domain.prop("checked", true); // Default setting
+    onetime.prop("checked", true); // Default setting
   }
 })
 
-
 // Show saved titles
-let ul = $('ul').eq(0);
+let ul = $('#savedTitles > ul').eq(0);
 chrome.storage.sync.get(function (items) {
   for (let url in items) {
     if (url == 'options') continue;

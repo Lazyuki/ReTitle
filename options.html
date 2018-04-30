@@ -2,15 +2,36 @@
 <html>
   <head>
     <title>Options</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="lib/materialize.min.css">
     <script type="text/javascript" src="lib/jquery-3.3.1.min.js" defer></script>
     <script type="text/javascript" src="lib/materialize.min.js" defer></script>
     <script src="js/options.js" defer></script>
     <style type="text/css">
+      @font-face {
+        font-family: 'Material Icons';
+        font-style: normal;
+        font-weight: 400;
+        src: url("./lib/material_icons.woff2") format('woff2');
+      }
+      .material-icons {
+        font-family: 'Material Icons';
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
+      }
+
       main {
         margin: 10px 10px 0;
-        min-width: 200px;
+        width: 500px;
       }
       #save {
         display: table;
@@ -106,40 +127,61 @@
         height: 20px;
         width: 20px;
       }
+      .tabs>.tab>a {
+        color: #688fe6;
+      }
+      form>p {
+        padding-left: 150px;
+      }
+
     </style>
   </head>
 
   <body>
     <main>
-      <div class="row">
-        <h2>Default Option</h2>
-        <form class="col s12" id="form">
-          <p>
-            <input class="with-gap" name="option" type="radio" id="domain" />
-            <label for="domain">Set for this domain</label>
-          </p>
-          <p>
-            <input class="with-gap" name="option" type="radio" id="onetime" />
-            <label for="onetime">Only this time</label>
-          </p>
-          <p>
-            <input class="with-gap" name="option" type="radio" id="tablock" />
-            <label for="tablock">Set for this tab</label>
-          </p>
-          <p>
-            <input class="with-gap" name="option" type="radio" id="exact" />
-            <label for="exact">Only exact match</label>
-          </p>
-          <div class="btn" id="save" type="submit">SAVE<i class="material-icons" id="check">check</i></div>
-        </form>
-        <hr />
-        <h2>Saved Titles</h2>
-        <div id="savedTitles">
-          <ul class="collection">
+    <div class="row">
+        <div class="col s12">
+          <ul class="tabs">
+            <li class="tab col s4"><a href="#savedTitles">Saved<br>Titles</a></li>
+            <li class="tab col s4"><a href="#defaultOptions">Default<br>Options</a></li>
+            <li class="tab col s4"><a href="#advancedOptions">Advanced<br>Options</a></li>
           </ul>
         </div>
-        <hr />
-        <h2>Edit Keyboard Shortcuts<i class="material-icons" id="keyboard">keyboard</i></h2>
+        <div id="savedTitles" class="col s12">
+          <p class="center" >Click the red trash can icon to delete the URL to title mapping.<br>
+          URLs like *example.com* are set for the domain. </p>
+          <ul class="collection">
+
+          </ul>
+        </div>
+        <div id="defaultOptions" class="col s12">
+          <p class="center" >This setting is used for the default extension pop up menu. </p>
+          <form class="col s12" id="form">
+              <p>
+                <input class="with-gap" name="option" type="radio" id="domain" />
+                <label for="domain">Set for this domain</label>
+              </p>
+              <p>
+                <input class="with-gap" name="option" type="radio" id="onetime" />
+                <label for="onetime">Only this time</label>
+              </p>
+              <p>
+                <input class="with-gap" name="option" type="radio" id="tablock" />
+                <label for="tablock">Set for this tab</label>
+              </p>
+              <p>
+                <input class="with-gap" name="option" type="radio" id="exact" />
+                <label for="exact">Only exact match</label>
+              </p>
+              <div class="btn" id="save" type="submit">SAVE<i class="material-icons" id="check">check</i></div>
+            </form>
+        </div>
+        <div id="advancedOptions" class="col s12">
+          <p class="center" >Default Keyboard Shortcut: "Ctrl+Shift+X"</P>
+          <h2>Edit Keyboard Shortcuts<i class="material-icons" id="keyboard">keyboard</i></h2>
+          <!--h2>Import Bookmark Titles</h2>
+          <div class="btn" id="importBookmarks" type="submit">IMPORT</div-->
+        </div>
       </div>
      </main>
     <footer>
