@@ -1,33 +1,17 @@
 const REGEX_DOMAIN = /https?:\/\/([^\s/]+)(?:$|\/.*)/; 
 let radios = $(':radio');
 let checks = $(':checkbox');
-let domain = radios.eq(0);
-let onetime = radios.eq(1);
-let tablock = radios.eq(2);
-let exact = radios.eq(3);
+const onetime = radios.eq(0);
+const tablock = radios.eq(1);
+const exact = radios.eq(2);
+const domain = radios.eq(3);
 
-// Import from bookmarks
-$('#importBookmarks').on('click', function() {
-  // TODO: show alert about updating old names
-  chrome.bookmarks.getTree((treeRoots) => {
-    let obj = {};
-    treeRoots.forEach((treeRoot) => {
-      (function recurse(treeNode) {
-        if (treeNode.children) { // is a folder
-          treeNode.children.forEach((n) => {
-            recurse(n);
-          })
-        } else { // is a bookmark
-          if (treeNode.title != '') {
-            obj[treeNode.url] = {title:treeNode.title}; // TODO imported:true? or confirmation window with a count
-          }
-        }
-      }(treeRoot));
-    })
-    chrome.storage.sync.set(obj);
-  });
-})
 
+// Materialize initializers
+$('.tabs').tabs();
+$('.collapsible').collapsible();
+
+// Save default options
 $('#save').on('click', function(e) {
   e.preventDefault();
   let options = {
@@ -62,7 +46,7 @@ chrome.storage.sync.get('options', (items) => {
 
 // Show saved titles
 let setTitleList = (function f() {
-  let ul = $('#savedTitles > ul').eq(0);
+  let ul = $('.collection').eq(0);
   chrome.storage.sync.get(function (items) {
     for (let url in items) {
       if (url == 'options') continue;
@@ -86,6 +70,6 @@ let setTitleList = (function f() {
 })();
 // When the list is updated, update the view automatically
 chrome.storage.onChanged.addListener(() => {
-  $('#savedTitles > ul').empty();
+  $('.collection').empty();
   setTitleList();
 });

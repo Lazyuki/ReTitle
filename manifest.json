@@ -4,7 +4,7 @@
   "name": "Tab ReTitle",
   "short_name": "ReTitle",
   "description": "Change tab titles easily!",
-  "version": "1.3.1",
+  "version": "1.3.3",
   "author": "Lazyuki",
   "browser_action": {
     "default_icon": "./images/icon256.png",
@@ -20,25 +20,26 @@
   "background": {
     "scripts": ["js/background.js"]
   },
-  "applications": {
-  "gecko": {
-    "id": "borderify@example.com"
-  }
-},
   "options_ui": {
     "page": "options.html",
     "chrome_style": true
   },
   "commands": {
-    "setTitle": {
+    "_execute_browser_action": {
       "suggested_key": {
-        "default": "Ctrl+Shift+X",
-        "mac": "MacCtrl+Shift+X",
-        "linux": "Ctrl+Shift+X"
+        "default": "Alt+Shift+X",
+        "mac": "Alt+Shift+X",
+        "linux": "Alt+Shift+X"
       },
       "description": "Set new title"
     }
   },
+  "applications": {
+    "gecko": {
+      "id": "borderify@example.com"
+    }
+  },
+  
   "permissions": [
     "activeTab",
     "tabs",

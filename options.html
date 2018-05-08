@@ -2,15 +2,17 @@
 <html>
   <head>
     <title>Options</title>
-    <link rel="stylesheet" type="text/css" href="lib/materialize.min.css">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="lib/materialize.min.1.0.0.css">
     <script type="text/javascript" src="lib/jquery-3.3.1.min.js" defer></script>
-    <script type="text/javascript" src="lib/materialize.min.js" defer></script>
+    <script type="text/javascript" src="lib/materialize.min.1.0.0.js" defer></script>
     <script src="js/options.js" defer></script>
     <style type="text/css">
       body {
         width: 500px;
         margin: 0 auto;
         overflow:hidden;
+        
       }
       @font-face {
         font-family: 'Material Icons';
@@ -34,12 +36,18 @@
         -webkit-font-smoothing: antialiased;
       }
       main {
-        margin: 10px 10px 0;
+        margin: 10px 0;
         width: 500px;
+        background-color: white;
       }
       #save {
         display: table;
         margin: 20px auto;
+        padding-left: 30px;
+        padding-right: 30px;
+      }
+      #save:hover {
+        background-color: #8bb0ff;
       }
       #check {
         color: #9bff9b;
@@ -63,23 +71,27 @@
       #savedTitles {
         margin: 20px 0 30px;
       }
-      ul {
-        padding: 0;
-        max-height: 220px;
+      ul.description {
+        margin: 0 20px 20px;
+      }
+      ul.description > li {
+        list-style-type: disc;
       }
       ul.collection {
+        padding: 0;
+        max-height: 220px;
         overflow-y: scroll;
       }
-      li {
+      .collection > li {
         list-style: none;
         font-size: 14px;
         overflow: hidden;
         padding-top: 5px;
       }
-      li:hover {
+      .collection > li:hover {
         background: rgba(0, 0, 128, 0.1)
       }
-      li > a { 
+      .collection > li > a { 
         padding-left: 5px;
         line-height: 22px;
       }
@@ -133,58 +145,104 @@
       }
       .tabs>.tab>a {
         color: #688fe6;
+        text-align: center;
+        display: inline-block;
+        width: 100%;
       }
       form>p {
         padding-left: 150px;
       }
-
+      code {
+        background: rgba(246,246,246,0.3);
+        padding: .1em .25em;
+        border: solid 1px rgba(51,51,51,0.12);
+        border-radius: .3em;
+        hyphens: none;
+        white-space: pre;
+        word-spacing: normal;
+        word-break: normal;
+      }
     </style>
   </head>
-
   <body>
+    <div  class="card">
     <main>
       <div class="row">
         <div class="col s12">
           <ul class="tabs">
-            <li class="tab col s4"><a href="#savedTitles">Saved<br>Titles</a></li>
-            <li class="tab col s4"><a href="#defaultOptions">Default<br>Options</a></li>
-            <li class="tab col s4"><a href="#advancedOptions">Advanced<br>Options</a></li>
+            <li class="tab col s4 center-align"><a href="#savedTitles">Saved Titles</a></li>
+            <li class="tab col s4 center-align"><a href="#defaultOptions">Options</a></li>
+            <li class="tab col s4 center-align"><a href="#advancedOptions">Advanced</a></li>
           </ul>
         </div>
         <div id="savedTitles" class="col s12">
-          <p class="center" >Click the red trash can icon to delete the URL-to-title mapping.<br>
-          URLs like *example.com* are set for the domain. </p>
+          <ul class="description">
+            <li>Click the red trash can icon to delete the URL-to-title mapping</li>
+            <li>URLs like <code>*example.com*</code> are set for the domain.</li>
+            <li>Use <code>$0</code> to insert the original title. So, if you want  
+              <code>Title</code> to say <code>Good Title</code>, 
+              set the title name to <code>Good $0</code>.</li>
+          </ul>
           <ul class="collection">
 
           </ul>
         </div>
         <div id="defaultOptions" class="col s12">
-          <p class="center" >This setting is used as default in the extension pop up menu. </p>
+          <p class="center-align" >This setting is used as default in the extension pop up menu. </p>
           <form class="col s12" id="form">
               <p>
-                <input class="with-gap" name="option" type="radio" id="domain" />
-                <label for="domain">Set for this domain</label>
+                <label for="onetime">
+                  <input class="with-gap" name="option" type="radio" id="onetime" />
+                  <span>Only this time</span>
+                </label>
               </p>
               <p>
-                <input class="with-gap" name="option" type="radio" id="onetime" />
-                <label for="onetime">Only this time</label>
+                <label for="tablock">
+                  <input class="with-gap" name="option" type="radio" id="tablock" />
+                  <span>Set for this tab</span>
+                </label>
               </p>
               <p>
-                <input class="with-gap" name="option" type="radio" id="tablock" />
-                <label for="tablock">Set for this tab</label>
+                <label for="exact">
+                  <input class="with-gap" name="option" type="radio" id="exact" />
+                  <span>Only exact match</span>
+                </label>
               </p>
               <p>
-                <input class="with-gap" name="option" type="radio" id="exact" />
-                <label for="exact">Only exact match</label>
+                <label for="domain">
+                  <input class="with-gap" name="option" type="radio" id="domain" />
+                  <span>Set for this domain</span>
+                </label>
               </p>
-              <div class="btn" id="save" type="submit">SAVE<i class="material-icons" id="check">check</i></div>
-            </form>
+            <div class="btn" id="save" type="submit">SAVE<i class="material-icons" id="check">check</i></div>
+          </form>
         </div>
         <div id="advancedOptions" class="col s12">
-          <p class="center" >Default Keyboard Shortcut: "Ctrl+Shift+X"</P>
-          <h2>Edit Keyboard Shortcuts<i class="material-icons" id="keyboard">keyboard</i></h2>
-          <!--h2>Import Bookmark Titles</h2>
-          <div class="btn" id="importBookmarks" type="submit">IMPORT</div-->
+          <ul class="collapsible">
+            <li>
+              <div class="collapsible-header">Keyboard Shortcut</div>
+              <div class="collapsible-body"><span>Keyboard Shortcut: "Alt+Shift+X"
+                <!--br><h2>Edit Keyboard Shortcuts<i class="material-icons" id="keyboard">keyboard</i></h2--></span></div>
+            </li>
+            <li>
+              <div class="collapsible-header">Beta Feature: Regex</div>
+              <div class="collapsible-body"><span>
+                  There's a beta feature that lets you replace titles using regex. 
+                  If you do not know what regex is, I don't recommend using this feature.<br>
+                  The syntax is <br><code>/regex/replacement/flags</code><br>
+                  Notice that there are three forward slashes, so if you want to use a slash in regex or replacement, 
+                  you need to escape it with a backward slash <code>\</code>.<br>
+                  In replacement, you can use regex's captured groups with <code>$1</code>, <code>$2</code> and so on. <br>
+                  Possible flags are "g" for global, and "i" for ignore case. Do not forget the last slash if not using any flags.<br>
+                  Examples:<br>
+                  <code>/.*/Lazy/</code> is the same as just setting the title to "Lazy".<br>
+                  <code>/(.*)/LAZ $1/</code> will replace "old title" to "LAZ old title".<br>
+                  <code>/(.*)/r\/$1/</code> will replace "Lazy" to "r/Lazy".<br>
+                  <code>/([a-z])/0$1/gi</code> will replace "sPonGe" to "0s0P0o0n0G0e"<br>
+                  <code>/f([^o]+)(.*)/FB $2$1/i</code> will replace "Facebook" to "FB ookaceb" (but why)
+              </span></div>
+            </li>
+          </ul>
         </div>
       </div>
      </main>
@@ -207,7 +265,7 @@
         <div class="center">&copy; 2018 Lazyuki</div>
       </div>
     </footer>
+  </div>
   </body>
-</html>
 </html>
 
