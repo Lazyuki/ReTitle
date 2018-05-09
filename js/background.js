@@ -105,7 +105,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
         try{
           for (let regex in items) {
             if (regex[0] != '*') continue;
-            let r = new RegExp('.' + regex.substr(0, regex.length -1) + '.*');
+            let r = new RegExp('.*?' + regex.substr(1, regex.length -1) + '.*');
             let title = items[regex]['title'];
             if (r.test(url)) {
               console.log(r.exec(url).toString);
@@ -144,11 +144,11 @@ chrome.tabs.onRemoved.addListener(function (tabId, info) {
 // Context menu
 chrome.contextMenus.create({id:'ctxmnu', title:'Set temporary title'});
 chrome.contextMenus.onClicked.addListener(function (info, tab) {
-  chrome.tabs.executeScript({code : 'document.title = prompt("Enter a temporary title");'});
-  // if (tab) {
-  //   let title = prompt('Enter a temporary title');
-  //   if (title) insertTitle(tab.id, title);
-  // }
+  // chrome.tabs.executeScript({code : 'document.title = prompt("Enter a temporary title");'}); // FF
+  if (tab) {
+    let title = prompt('Enter a temporary title');
+    if (title) insertTitle(tab.id, title);
+  }
 });
 
 // Receives rename message from popup.js

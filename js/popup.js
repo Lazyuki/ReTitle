@@ -76,7 +76,7 @@ function initialize(tabs) {
   // Search from bookmarks
   try {
       chrome.bookmarks.search({url:currentTab.url}, function (results) {
-      if (results) {
+      if (results && results[0]) {
         $('#fromBookmark').text(`From bookmark: ${results[0].title}`);
         $('#fromBookmark').click(() => {
           $('#title').val(results[0].title);
