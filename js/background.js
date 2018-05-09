@@ -8,7 +8,7 @@ const waitList = []; // for each tab?
 
 
 // Returns a title specified by regex
-function decodeTitle(oldTitle, newTitle) {
+function decodeTitle(oldTitle, newTitle, url=null, urlPattern=null) {
   let captured = validRegex.exec(newTitle);
   if (captured) {
     let pattern = captured[1];
@@ -16,6 +16,13 @@ function decodeTitle(oldTitle, newTitle) {
     let flags = captured[3];
     newTitle = oldTitle.replace(new RegExp(pattern, flags), replacement);
     if (newTitle == oldTitle) newTitle += ' | Regex Error: No pattern Match';
+  }
+  //console.log(newTitle);
+  if (url) {
+    newTitle = newTitle.replace(/\$\{(\d)\}/g, '\$$$1');
+    //console.log(newTitle);
+    newTitle = url.replace(urlPattern, newTitle);
+    //console.log(newTitle);
   }
   newTitle = newTitle.replace('$0', oldTitle).replace(/\\/g, ''); // the first $0 turns into the previous title
   return newTitle;
@@ -29,13 +36,11 @@ function executeNext() {
 }
 
 // Update the tab title
-function insertTitle(tabId, url, newTitle) {
-  if (!cache.includes(newTitle)) {
-    cache.push(newTitle);
-  }
+function insertTitle(tabId, newTitle) {
   function execute() {
     wait = true;
-    console.log('will execute ' + newTitle);
+    cache.push(newTitle);
+    console.log('Changing the title to ' + newTitle);
     chrome.tabs.executeScript(tabId,
       {code:`
         if (document.title) {
@@ -65,41 +70,54 @@ function insertTitle(tabId, url, newTitle) {
 
 // Listens for tab title changes, and update them if necessary.
 chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
-  console.log(info);
-  console.log(tab.status + ' | ' + tab.title);
   if (info.title) {
     let url = tab.url;
-    if (url.endsWith('/')) url = url.slice(0, -1);
     let index = cache.indexOf(info.title);
     if (index > -1) {
       cache.splice(index, 1);
-      console.log('i changed it to ' + info.title);
-      return;
+      return; // I'm the one changed the title to this
     }
     chrome.storage.sync.get(function (items) {
       if (items[`Tab#${tabId}`]) { // Tab lock has the highest priority
-        console.log('tablock change');
+        console.log('TabID ' + tabId + ' detected.');
         let title = items[`Tab#${tabId}`]['title'];
-        title = decodeTitle(tab.title, title);
-        if (title == tab.title) return;
-        insertTitle(tabId, url, title);
+        if (title == info.title) return;
+        insertTitle(tabId, decodeTitle(info.title, title));
       } else if (items[url]) { // Exact URL match takes precedence over domain-level titles.
-        console.log('exact match change');
+        console.log('Exact URL ' + url + ' detected.');
         let title = items[url]['title'];
-        title = decodeTitle(tab.title, title)
-        if (title == tab.title) return; 
-        insertTitle(tabId, url, title);
+        if (title == info.title) return; 
+        insertTitle(tabId, decodeTitle(info.title, title));
       } else { // Checks if domain -> title is specified
         let match = url.match(REGEX_DOMAIN);
-        if (!match) return;
-        let domainUrl = `*${match[1]}*`;
-        if (items[domainUrl]) {
-          console.log('domain change ' + tab.title);
-          let title = items[domainUrl]['title'];
-          title = decodeTitle(tab.title, title);
-          if (title == tab.title) return; 
-          insertTitle(tabId, url, title);
+        if (match) {
+          let domainUrl = `*${match[1]}*`;
+          if (items[domainUrl]) {
+            console.log('Domain ' + domainUrl + ' detected.');
+            let title = items[domainUrl]['title'];
+            if (title == info.title) return; 
+            insertTitle(tabId, decodeTitle(info.title, title));
+            return;
+          }
         }
+        // Try Regex
+        console.log('Trying Regex');
+        try{
+          for (let regex in items) {
+            if (regex[0] != '*') continue;
+            let r = new RegExp('.' + regex.substr(0, regex.length -1) + '.*');
+            let title = items[regex]['title'];
+            if (r.test(url)) {
+              console.log(r.exec(url).toString);
+              title = decodeTitle(info.title, title, url, r)
+              insertTitle(tabId, title);
+              return; // only the first match
+            }
+          }
+        } catch (e) {
+          // probably regex fail
+        }
+
       }
     })
   }
@@ -114,19 +132,19 @@ chrome.tabs.onRemoved.addListener(function (tabId, info) {
   })
 }) 
 
-// Listen for shortcut
-chrome.commands.onCommand.addListener(function(command) {
-  if (command == 'setTitle') {
-   chrome.tabs.executeScript({code : 'if (!title) { var title } title = prompt("Enter a temporary title"); if (title) document.title = title'});
-   // let title = prompt('Enter a temporary title');
-   // if (title) insertTitle(null,title);  
-  } 
-});
+// // Listen for shortcut
+// chrome.commands.onCommand.addListener(function(command) {
+//   if (command == 'setTitle') {
+//    chrome.tabs.executeScript({code : 'if (!title) { var title } title = prompt("Enter a temporary title"); if (title) document.title = title'});
+//    // let title = prompt('Enter a temporary title');
+//    // if (title) insertTitle(null,title);  
+//   } 
+// });
 
 // Context menu
 chrome.contextMenus.create({id:'ctxmnu', title:'Set temporary title'});
 chrome.contextMenus.onClicked.addListener(function (info, tab) {
-  chrome.tabs.executeScript({code : 'let title2 = prompt("Enter a temporary title"); if (title2) document.title = title2'});
+  chrome.tabs.executeScript({code : 'document.title = prompt("Enter a temporary title");'});
   // if (tab) {
   //   let title = prompt('Enter a temporary title');
   //   if (title) insertTitle(tab.id, title);
@@ -136,7 +154,7 @@ chrome.contextMenus.onClicked.addListener(function (info, tab) {
 // Receives rename message from popup.js
 chrome.runtime.onMessage.addListener(
   function(request) {
-    insertTitle(request.id, request.url, decodeTitle(request.oldTitle,request.newTitle));
+    insertTitle(request.id, decodeTitle(request.oldTitle, request.newTitle));
     // sendResponse(); // notify popup.js
   }
 );
@@ -155,17 +173,10 @@ chrome.runtime.onStartup.addListener(function() {
 // UPDATE PREVIOUSLY STORED TITLES ON EXTENSION UPDATE
 chrome.runtime.onInstalled.addListener((details) => {
   chrome.storage.sync.get(function (items) {
-    let obj = {};
     for (let item in items) {
       if (item.startsWith('#')) { // old tab lock mistake
         chrome.storage.sync.remove(item);
       }
-      if (item.endsWith('/')) {
-        let newItem = item.slice(0, -1);
-        obj[newItem] = items[item];
-        chrome.storage.sync.remove(item);
-      }
     }
-    chrome.storage.sync.set(obj);
   })
 });

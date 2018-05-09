@@ -29,7 +29,6 @@ function initialize(tabs) {
     chrome.runtime.sendMessage( // change Title
       { 
         id: currentTab.id,
-        url: currentTab.url,
         oldTitle: currentTab.title,
         newTitle: newTitle
       }
@@ -43,23 +42,33 @@ function initialize(tabs) {
     );
   });
 
+  // So that the enter key submits and doesn't create newline.
+  $("#title").keypress(function (e) {
+    if(e.which == 13 && !e.shiftKey) {        
+        $('#form').submit();
+        e.preventDefault();
+        return false;
+    }
+  });
+
   // Set link to the options page
   $('#gear').on('click', () => chrome.runtime.openOptionsPage(() => window.close()));
 
   // Set placeholder 
-  $('#title').attr('placeholder', currentTab.title);
+  // $('#title').attr('placeholder', currentTab.title);
 
   // Set previous title
   $('small').text('Old Title: ' + currentTab.title);
   $('small').click(() => {
-    $('#title').attr('value', currentTab.title);
+    $('#title').val(currentTab.title);
+    M.textareaAutoResize($('#title')); // resize text area
     $('#title').focus();
     $('#title').select();
   });
 
-  $('.tooltipped').tooltip({enterDelay:100, margin:2, inDuration: 150, outDuration: 150});
+  $('.tooltipped').tooltip({enterDelay:200, margin:2, inDuration: 150, outDuration: 150, transitionMovement:5});
 
-  // focus (for firefox)
+  // focus (for firefox) Fixed in nightly build
   setTimeout(() => {
     $('#title').focus();
   }, 100);
@@ -70,7 +79,8 @@ function initialize(tabs) {
       if (results) {
         $('#fromBookmark').text(`From bookmark: ${results[0].title}`);
         $('#fromBookmark').click(() => {
-          $('#title').attr('value', results[0].title);
+          $('#title').val(results[0].title);
+          M.textareaAutoResize($('#title')); // resize text area
           $('#title').focus();
           $('#title').select();
         });
@@ -78,7 +88,7 @@ function initialize(tabs) {
     });
   } catch (e) {
     // URL not allowed;
-    console.log(e.message);
+    
   }
 }
 
@@ -96,7 +106,6 @@ function saveTitle(newTitle, domain, onetime, tablock, exact) {
 
 function setStorage(title, domain) {
   let url = currentTab.url;
-  if (url.endsWith('/')) url = url.slice(0, -1);
   let obj = {};
   if (domain) { // only for domain
     let match = url.match(REGEX_DOMAIN);

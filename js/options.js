@@ -6,6 +6,18 @@ const tablock = radios.eq(1);
 const exact = radios.eq(2);
 const domain = radios.eq(3);
 
+// Set default checkboxes
+chrome.storage.sync.get('options', (items) => {
+  if (items['options']) {
+    let options = items['options'];
+    if (options.domain) domain.prop("checked", true);
+    if (options.onetime) onetime.prop("checked", true);
+    if (options.tablock) tablock.prop("checked", true);
+    if (options.exact) exact.prop("checked", true);
+  } else {
+    onetime.prop("checked", true); // Default setting
+  }
+})
 
 // Materialize initializers
 $('.tabs').tabs();
@@ -24,24 +36,45 @@ $('#save').on('click', function(e) {
   $('#check').css('display', 'inline-block').delay(1000).fadeOut(300);
 });
 
-
 // Open keyboard shortcut settings page
 $('#keyboard').on('click', function() {
   chrome.tabs.create({url: "chrome://extensions/shortcuts"});
+})
+
+// So that the enter key submits and doesn't create newline.
+$("#urlPattern").keypress(function (e) {
+if(e.which == 13 && !e.shiftKey) {        
+    $('#newTitle').focus().select();
+    e.preventDefault();
+    return false;
+}
 });
 
-// Set default checkboxes
-chrome.storage.sync.get('options', (items) => {
-  if (items['options']) {
-    let options = items['options'];
-    if (options.domain) domain.prop("checked", true);
-    if (options.onetime) onetime.prop("checked", true);
-    if (options.tablock) tablock.prop("checked", true);
-    if (options.exact) exact.prop("checked", true);
-  } else {
-    onetime.prop("checked", true); // Default setting
+// So that the enter key submits and doesn't create newline.
+$("#newTitle").keypress(function (e) {
+  if(e.which == 13 && !e.shiftKey) {        
+      $('#add').click();
+      e.preventDefault();
+      return false;
   }
-})
+});
+
+// Add form listener for new titles
+$('#add').on('click', function(e) {
+  e.preventDefault();
+  let urlPattern = $('#urlPattern').val().trim();
+  let newTitle = $('#newTitle').val();
+  if (/^\*.+\*$/.test(urlPattern)) {
+    $('#urlPattern').addClass('valid').removeClass('invalid');
+  } else {
+    $('#urlPattern').addClass('invalid').removeClass('valid').focus();
+    return;
+  }
+  let obj = {};
+  obj[urlPattern] = {title:newTitle};
+  chrome.storage.sync.set(obj);
+  $('#added').css('display', 'inline-block').delay(1000).fadeOut(300);
+});
 
 
 // Show saved titles
@@ -68,6 +101,7 @@ let setTitleList = (function f() {
   });
   return f;
 })();
+
 // When the list is updated, update the view automatically
 chrome.storage.onChanged.addListener(() => {
   $('.collection').empty();
