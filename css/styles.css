@@ -1,0 +1,58 @@
+:root {
+  --primary: #688fe6;
+  --primary-hover: #8bb0ff;
+}
+
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url("../lib/material_icons.woff2") format('woff2');
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+button, html [type="button"], [type="reset"], [type="submit"] {
+  -webkit-appearance: none;
+}
+
+[type="radio"]:checked+span:after, [type="radio"].with-gap:checked+span:before, [type="radio"].with-gap:checked+span:after {
+  border: 2px solid var(--primary);
+}
+
+[type="radio"]:checked+span:after, [type="radio"].with-gap:checked+span:before, [type="radio"].with-gap:checked+span:after {
+  border: 2px solid var(--primary);
+}
+
+[type="radio"]:checked+span:after, [type="radio"].with-gap:checked+span:after {
+  background-color: var(--primary);
+}
+
+.btn, .btn-large, .btn-small {
+  background-color: var(--primary);
+  font-weight: 500;
+}
+
+textarea.materialize-textarea:focus:not([readonly]) {
+  border-bottom: 1px solid var(--primary);
+  -webkit-box-shadow: 0 1px 0 0 var(--primary);
+  box-shadow: 0 1px 0 0 var(--primary);
+}
+
+textarea.materialize-textarea:focus:not([readonly])+label {
+  color: var(--primary);
+}

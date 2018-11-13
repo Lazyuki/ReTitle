@@ -4,7 +4,7 @@
   "name": "Tab ReTitle",
   "short_name": "ReTitle",
   "description": "Change tab titles easily!",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "author": "Lazyuki",
   "browser_action": {
     "default_icon": "./images/icon256.png",
@@ -32,6 +32,11 @@
         "linux": "Alt+Shift+X"
       },
       "description": "Set new title"
+    }
+  },
+  "applications": {
+    "gecko": {
+      "id": "borderify@example.com"
     }
   },
   

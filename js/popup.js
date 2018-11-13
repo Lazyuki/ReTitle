@@ -54,18 +54,15 @@ function initialize(tabs) {
   // Set link to the options page
   $('#gear').on('click', () => chrome.runtime.openOptionsPage(() => window.close()));
 
-  // Set placeholder 
-  // $('#title').attr('placeholder', currentTab.title);
-
   // Set previous title
-  $('small').text('Old Title: ' + currentTab.title);
+  $('small').text(currentTab.title);
   $('small').click(() => {
     $('#title').val(currentTab.title);
     M.textareaAutoResize($('#title')); // resize text area
-    $('#title').focus();
-    $('#title').select();
+    $('#title').focus().select();
   });
 
+  // Tooltip initialization.
   $('.tooltipped').tooltip({enterDelay:200, margin:2, inDuration: 150, outDuration: 150, transitionMovement:5});
 
   // focus (for firefox) Fixed in nightly build
@@ -76,13 +73,12 @@ function initialize(tabs) {
   // Search from bookmarks
   try {
       chrome.bookmarks.search({url:currentTab.url}, function (results) {
-      if (results) {
+      if (results && results[0]) {
         $('#fromBookmark').text(`From bookmark: ${results[0].title}`);
         $('#fromBookmark').click(() => {
           $('#title').val(results[0].title);
           M.textareaAutoResize($('#title')); // resize text area
-          $('#title').focus();
-          $('#title').select();
+          $('#title').focus().select();
         });
       }
     });
