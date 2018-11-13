@@ -242,7 +242,8 @@ code {
   margin-right: 5px;
 }
 
+/* 
 [type="radio"]:not(:checked)+span, [type="radio"]:checked+span {
   font-size: 0.95rem;
   line-height: 1.2em;
-}
+} */
