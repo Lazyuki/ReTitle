@@ -4,7 +4,7 @@
   "name": "Tab ReTitle",
   "short_name": "ReTitle",
   "description": "Change tab titles easily!",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "author": "Lazyuki",
   "homepage_url": "https://github.com/Lazyuki/ReTitle",
   "browser_action": {
