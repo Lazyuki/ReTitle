@@ -54,6 +54,11 @@ function initialize(tabs) {
   // Set link to the options page
   $('#gear').on('click', () => chrome.runtime.openOptionsPage(() => window.close()));
 
+  // Prefill current title and select
+  $('#title').val(currentTab.title);
+  M.textareaAutoResize($('#title')); // resize text area
+  $('#title').focus().select();
+
   // Set previous title
   $('small').text(currentTab.title);
   $('small').click(() => {
@@ -67,7 +72,7 @@ function initialize(tabs) {
 
   // focus (for firefox) Fixed in nightly build
   setTimeout(() => {
-    $('#title').focus();
+    $('#title').focus().select();
   }, 100);
 
   // Search from bookmarks
