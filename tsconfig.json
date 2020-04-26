@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "lib": ["es6", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "esModuleInterop": true,
+    "jsx": "react",
+    "jsxFactory": "h",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "outDir": "out",
+    "module": "commonjs"
+  },
+  "include": ["src/**/*"],
+}

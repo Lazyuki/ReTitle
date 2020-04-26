@@ -1,0 +1,51 @@
+{
+  "name": "retitle",
+  "version": "2.0.0",
+  "description": "Change tab titles easily!",
+  "author": "Lazyuki",
+  "license": "MIT",
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/Lazyuki/ReTitle/issues"
+  },
+  "homepage": "https://github.com/Lazyuki/ReTitle#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lazyuki/ReTitle.git"
+  },
+  "scripts": {
+    "lint": "eslint src",
+    "dev": "webpack --watch",
+    "prebuild": "rimraf dist",
+    "build": "NODE_ENV=production webpack"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.9.11",
+    "preact": "^10.4.0",
+    "styled-components": "^5.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/plugin-proposal-object-rest-spread": "^7.9.5",
+    "@babel/plugin-transform-react-jsx": "^7.9.4",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/preset-react": "^7.9.4",
+    "@babel/preset-typescript": "^7.9.0",
+    "@types/chrome": "^0.0.104",
+    "@types/firefox": "^0.0.29",
+    "@types/styled-components": "^5.1.0",
+    "babel-loader": "^8.1.0",
+    "babel-plugin-styled-components": "^1.10.7",
+    "copy-webpack-plugin": "^5.1.1",
+    "eslint": "^6.8.0",
+    "file-loader": "^6.0.0",
+    "rimraf": "^3.0.2",
+    "style-loader": "^1.1.4",
+    "ts-loader": "^7.0.0",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-extension-manifest-plugin": "^0.5.0"
+  }
+}

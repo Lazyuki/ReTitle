@@ -4,14 +4,13 @@
   "name": "Tab ReTitle",
   "short_name": "ReTitle",
   "description": "Change tab titles easily!",
-  "version": "1.5.2",
   "author": "Lazyuki",
   "homepage_url": "https://github.com/Lazyuki/ReTitle",
   "browser_action": {
     "default_icon": "./images/icon256.png",
     "default_popup": "popup.html"
   },
-  "icons": { 
+  "icons": {
     "16": "./images/icon16.png",
     "32": "./images/icon32.png",
     "64": "./images/icon64.png",
@@ -19,7 +18,7 @@
     "256": "./images/icon256.png"
   },
   "background": {
-    "scripts": ["js/background.js"]
+    "scripts": ["background.js"]
   },
   "options_ui": {
     "page": "options.html",
