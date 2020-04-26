@@ -1,4 +1,4 @@
 import { h, render } from 'preact';
-import Options from './options';
+import OptionsApp from './OptionsApp';
 
-render(<Options />, document.body);
+render(<OptionsApp />, document.body);

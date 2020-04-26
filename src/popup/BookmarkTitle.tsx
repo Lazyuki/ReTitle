@@ -8,6 +8,7 @@ const useStyles = makeStyles({
     cursor: 'pointer',
     marginBottom: '10px',
     marginRight: '40px',
+    wordBreak: 'break-all',
   },
   label: {
     opacity: 0.7,

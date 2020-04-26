@@ -11,8 +11,8 @@ import Button from '@material-ui/core/Button';
 import Gear from './Gear';
 import CurrentTitle from './CurrentTitle';
 import BookmarkTitle from './BookmarkTitle';
-
-type TabOption = 'onetime' | 'tablock' | 'exact' | 'fulldomain' | 'domain';
+import { extractDomain } from '../shared/utils';
+import { TabOption } from '../shared/types';
 
 const useStyles = makeStyles({
   root: {
@@ -27,12 +27,51 @@ const useStyles = makeStyles({
     margin: '10px 0',
     paddingLeft: '20px',
   },
+  button: {
+    display: 'block',
+    margin: '0 auto',
+  },
   version: {
     textAlign: 'right',
     opacity: 0.5,
     fontSize: '12px',
   },
 });
+
+function saveTitle(
+  newTitle: string,
+  option: TabOption,
+  currentTab: chrome.tabs.Tab
+) {
+  if (option === 'tablock') {
+    const obj: { [key: string]: object } = {};
+    obj[`Tab#${currentTab.id}`] = { title: newTitle };
+    chrome.storage.sync.set(obj, () => window.close());
+    return;
+  } else if (option !== 'onetime') {
+    setStorage(newTitle, option === 'domain', currentTab);
+  }
+  window.close();
+}
+
+function setStorage(
+  newTitle: string,
+  domain: boolean,
+  currentTab: chrome.tabs.Tab
+) {
+  const url = currentTab.url;
+  if (!url) return; // No URL?
+  const obj: { [key: string]: object } = {};
+  if (domain) {
+    // only for domain
+    const urlDomain = extractDomain(url);
+    obj[`*${urlDomain}*`] = { title: newTitle };
+  } else {
+    // is exact
+    obj[url] = { title: newTitle };
+  }
+  chrome.storage.sync.set(obj, () => window.close());
+}
 
 const Form = () => {
   const [tab, setTab] = useState<chrome.tabs.Tab | null>(null);
@@ -41,11 +80,21 @@ const Form = () => {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const styles = useStyles();
 
-  useEffect(() => {
-    const initialize = (tabs: chrome.tabs.Tab[]) => {
+  const setInputAndSelect = useCallback(
+    (newInput?: string) => {
+      setInputValue(newInput || '');
+      setTimeout(() => {
+        inputRef?.current?.select();
+      }, 0);
+    },
+    [inputRef]
+  );
+
+  const initialize = useCallback(
+    (tabs: chrome.tabs.Tab[]) => {
       const currentTab = tabs[0];
       setTab(currentTab);
-      setInputValue(currentTab.title || '');
+      setInputAndSelect(currentTab.title || '');
       chrome.storage.sync.get('options', (items) => {
         if (items['options']) {
           const options = items['options'];
@@ -55,10 +104,11 @@ const Form = () => {
           if (options.exact) setOption('exact');
         }
       });
-      setTimeout(() => {
-        inputRef?.current?.select();
-      }, 0);
-    };
+    },
+    [setInputAndSelect]
+  );
+
+  useEffect(() => {
     chrome.tabs.query(
       {
         active: true,
@@ -66,23 +116,44 @@ const Form = () => {
       },
       initialize
     );
-  }, []);
+  }, [initialize]);
 
   const handleOptionChange = useCallback((e: any) => {
     setOption(e.target.value);
   }, []);
 
+  const setTitle = useCallback(() => {
+    if (tab) {
+      chrome.runtime.sendMessage({
+        id: tab.id,
+        oldTitle: tab.title,
+        newTitle: inputValue,
+      });
+      saveTitle(inputValue, option, tab);
+    }
+  }, [inputValue, option, tab]);
+
   return (
     <div className={styles.root}>
       <Gear />
-      <CurrentTitle currentTitle={tab?.title} setInputValue={setInputValue} />
-      <BookmarkTitle url={tab?.url} setInputValue={setInputValue} />
+      <CurrentTitle
+        currentTitle={tab?.title}
+        setInputValue={setInputAndSelect}
+      />
+      <BookmarkTitle url={tab?.url} setInputValue={setInputAndSelect} />
       <TextField
         multiline
         className={styles.input}
         inputRef={inputRef}
         label="New Title"
         value={inputValue}
+        onKeyPress={(e) => {
+          if (e.which == 13 && !e.shiftKey) {
+            e.preventDefault();
+            setTitle();
+            return false;
+          }
+        }}
         onChange={(e) => setInputValue(e.target.value)}
         onFocus={(e) => e.target.select()}
       />
@@ -101,7 +172,7 @@ const Form = () => {
           <FormControlLabel
             value="tab"
             control={<Radio color="primary" />}
-            label="Set for this tab*"
+            label="Set for this tab"
           />
           <FormControlLabel
             value="exact"
@@ -111,15 +182,21 @@ const Form = () => {
           <FormControlLabel
             value="domain"
             control={<Radio color="primary" />}
-            label={`Set for this domain: ${tab?.url}`}
+            label={`Set for this domain: ${extractDomain(tab?.url)}`}
           />
         </RadioGroup>
       </FormControl>
-      <Button variant="contained" color="primary">
-        Set Title
+      <Button
+        className={styles.button}
+        variant="contained"
+        color="primary"
+        onClick={setTitle}
+      >
+        SET TITLE
       </Button>
       <div className={styles.version}>v__extension_version__</div>
     </div>
   );
 };
+
 export default Form;

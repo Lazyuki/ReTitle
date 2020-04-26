@@ -4,6 +4,7 @@ const pkg = require('./package.json');
 const CopyPlugin = require('copy-webpack-plugin');
 
 const dev = process.env.NODE_ENV !== 'production';
+const browser = process.env.BROWSER || 'chrome';
 
 module.exports = {
   mode: dev ? 'development' : 'production',
@@ -15,26 +16,32 @@ module.exports = {
   },
   output: {
     filename: '[name].js',
-    path: __dirname + '/dist',
-    pathinfo: true,
+    path: __dirname + `/dist_${browser}`,
   },
   module: {
     rules: [
       {
         test: /\.tsx?$/,
-        loader: 'string-replace-loader',
-        options: {
-          search: '__extension_version__',
-          replace: pkg.version,
-        },
-      },
-      {
-        test: /\.tsx?$/,
         exclude: /node_modules/,
-        loader: ['babel-loader'],
+        use: [
+          { loader: 'babel-loader' },
+          {
+            loader: 'string-replace-loader',
+            options: {
+              search: '__extension_version__',
+              replace: dev ? `${pkg.version}-dev` : pkg.version,
+            },
+          },
+          { loader: 'webpack-conditional-loader' },
+        ],
       },
       {
-        test: /\.(png|svg)$/,
+        test: /\.svg$/,
+        exclude: /node_modules/,
+        use: ['preact-svg-loader'],
+      },
+      {
+        test: /\.(png)$/,
         exclude: /node_modules/,
         loader: ['file-loader'],
       },
@@ -52,6 +59,7 @@ module.exports = {
     new CopyPlugin([
       {
         from: 'static',
+        exclude: 'static/svgs',
       },
     ]),
   ],

@@ -3,7 +3,7 @@ import { h } from 'preact';
 import Form from './Form';
 import ReTitleThemeWrapper from '../shared/ReTitleThemeWrapper';
 
-const App = () => {
+const PopupApp = () => {
   return (
     <ReTitleThemeWrapper>
       <Form />
@@ -11,4 +11,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default PopupApp;

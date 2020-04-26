@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 176 176">
+  <defs>
+    <clipPath id="a">
+      <circle cx="88" cy="88" r="88" fill="none"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#a)">
+    <path d="M14,0V108H53.4L88,48h88V0Z" fill="#db4437"/>
+    <path d="M0,176H83.8l38.9-38.9V108H53.3L0,16.5Z" fill="#0f9d58"/>
+    <path d="M88,48l34.6,60L83.7,176H176V48Z" fill="#ffcd40"/>
+    <circle cx="88" cy="88" r="40" fill="#f1f1f1"/>
+    <circle cx="88" cy="88" r="32" fill="#4285f4"/>
+  </g>
+</svg>

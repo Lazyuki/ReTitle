@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { makeStyles } from '@material-ui/core/styles';
-import gearImg from '../../static/images/gear.png';
+import GearSvg from '../../static/svgs/gear.svg';
 
 const useStyles = makeStyles({
   root: {
@@ -8,13 +8,18 @@ const useStyles = makeStyles({
     zIndex: 2,
     top: '10px',
     right: '10px',
-    display: 'block',
     cursor: 'pointer',
-    width: '25px',
-    height: '25px',
-    transition: 'transform 0.3s ease-in -out',
-    '&: hover': {
+    width: '35px',
+    height: '35px',
+    padding: '5px',
+    '& svg': {
+      willChange: 'opacity, transform',
+      opacity: 0.7,
+      transition: 'all 0.3s ease-in-out',
+    },
+    '&:hover svg': {
       transform: 'rotate(60deg)',
+      opacity: 1,
     },
   },
 });
@@ -22,11 +27,12 @@ const useStyles = makeStyles({
 const Gear = () => {
   const styles = useStyles();
   return (
-    <img
+    <div
       className={styles.root}
-      src={gearImg}
       onClick={() => chrome.runtime.openOptionsPage(() => window.close())}
-    />
+    >
+      <GearSvg />
+    </div>
   );
 };
 
