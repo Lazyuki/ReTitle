@@ -6,53 +6,61 @@ const CopyPlugin = require('copy-webpack-plugin');
 const dev = process.env.NODE_ENV !== 'production';
 
 module.exports = {
-  mode: dev ? "development" : "production",
+  mode: dev ? 'development' : 'production',
   devtool: dev ? 'cheap-source-map' : undefined,
   entry: {
     popup: './src/popup/index.tsx',
     options: './src/options/index.tsx',
-    background: './src/background.ts'
+    background: './src/background.ts',
   },
   output: {
     filename: '[name].js',
     path: __dirname + '/dist',
-    pathinfo: true
-
+    pathinfo: true,
   },
   module: {
-    rules: [{
+    rules: [
+      {
+        test: /\.tsx?$/,
+        loader: 'string-replace-loader',
+        options: {
+          search: '__extension_version__',
+          replace: pkg.version,
+        },
+      },
+      {
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        loader: ['babel-loader']
+        loader: ['babel-loader'],
       },
       {
         test: /\.(png|svg)$/,
         exclude: /node_modules/,
-        loader: ['file-loader']
-      }
-    ]
+        loader: ['file-loader'],
+      },
+    ],
   },
   plugins: [
     new WebpackExtensionManifestPlugin({
       config: {
         base: baseManifest,
         extend: {
-          version: pkg.version
-        }
-      }
+          version: pkg.version,
+        },
+      },
     }),
-    new CopyPlugin([{
-      from: 'static',
-    }]),
-
+    new CopyPlugin([
+      {
+        from: 'static',
+      },
+    ]),
   ],
   resolve: {
     extensions: ['.js', 'jsx', '.ts', '.tsx'],
     alias: {
-      "react": "preact/compat",
-      "react-dom/test-utils": "preact/test-utils",
-      "react-dom": "preact/compat",
+      react: 'preact/compat',
+      'react-dom/test-utils': 'preact/test-utils',
+      'react-dom': 'preact/compat',
     },
-
-  }
+  },
 };
