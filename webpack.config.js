@@ -2,6 +2,7 @@ const WebpackExtensionManifestPlugin = require('webpack-extension-manifest-plugi
 const baseManifest = require('./manifest.base.json');
 const pkg = require('./package.json');
 const CopyPlugin = require('copy-webpack-plugin');
+const ZipPlugin = require('zip-webpack-plugin');
 
 const dev = process.env.NODE_ENV !== 'production';
 const browser = process.env.BROWSER || 'chrome';
@@ -40,11 +41,6 @@ module.exports = {
         exclude: /node_modules/,
         use: ['preact-svg-loader'],
       },
-      {
-        test: /\.(png)$/,
-        exclude: /node_modules/,
-        loader: ['file-loader'],
-      },
     ],
   },
   plugins: [
@@ -62,6 +58,12 @@ module.exports = {
         exclude: 'static/svgs',
       },
     ]),
+    dev
+      ? null
+      : new ZipPlugin({
+          path: '../zip',
+          filename: `ReTitle-${pkg.version}.${browser}.zip`,
+        }),
   ],
   resolve: {
     extensions: ['.js', 'jsx', '.ts', '.tsx'],
