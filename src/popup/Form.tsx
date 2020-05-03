@@ -32,7 +32,9 @@ const useStyles = makeStyles({
     margin: '0 auto',
   },
   version: {
-    textAlign: 'right',
+    position: 'absolute',
+    bottom: '20px',
+    right: '20px',
     opacity: 0.5,
     fontSize: '12px',
   },
@@ -147,15 +149,15 @@ const Form = () => {
         inputRef={inputRef}
         label="New Title"
         value={inputValue}
-        onKeyPress={(e) => {
+        onKeyPress={(e: any) => {
           if (e.which == 13 && !e.shiftKey) {
             e.preventDefault();
             setTitle();
             return false;
           }
         }}
-        onChange={(e) => setInputValue(e.target.value)}
-        onFocus={(e) => e.target.select()}
+        onChange={(e: any) => setInputValue(e.target.value)}
+        onFocus={(e: any) => e.target.select()}
       />
       <FormControl className={styles.radios} component="fieldset">
         <RadioGroup
@@ -194,7 +196,7 @@ const Form = () => {
       >
         SET TITLE
       </Button>
-      <div className={styles.version}>v__extension_version__</div>
+      <div className={styles.version}>v{EXTENSION_VERSION}</div>
     </div>
   );
 };

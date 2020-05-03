@@ -1,7 +1,9 @@
 import { h } from 'preact';
-import { FC } from 'preact/compat';
+import { FC, useState, useMemo, useEffect, useCallback } from 'preact/compat';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import { StorageChanges, ThemeState } from './types';
+import { KEY_THEME } from './utils';
 
 const StyleFix = {
   overrides: {
@@ -23,7 +25,7 @@ const lightTheme = createMuiTheme({
       main: '#688fe6',
     },
     secondary: {
-      main: '#7e57c2',
+      main: '#ec4fc4',
     },
   },
   ...StyleFix,
@@ -36,15 +38,38 @@ const darkTheme = createMuiTheme({
       main: '#9ab0e6',
     },
     secondary: {
-      main: '#7e57c2',
+      main: '#ec4fc4',
     },
   },
   ...StyleFix,
 });
 
 const ReTitleThemeWrapper: FC = ({ children }) => {
+  const [theme, setTheme] = useState<ThemeState>('dark');
+
+  useEffect(() => {
+    chrome.storage.sync.get(KEY_THEME, (items) => {
+      if (items[KEY_THEME]) {
+        setTheme(items[KEY_THEME]);
+      }
+    });
+  }, []);
+
+  const storageChangeHandler = useCallback((changes: StorageChanges) => {
+    if (changes[KEY_THEME]) {
+      const change = changes[KEY_THEME];
+      if (change.newValue) {
+        setTheme(change.newValue);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    chrome.storage.onChanged.addListener(storageChangeHandler);
+    return () => chrome.storage.onChanged.removeListener(storageChangeHandler);
+  }, [storageChangeHandler]);
   return (
-    <MuiThemeProvider theme={darkTheme}>
+    <MuiThemeProvider theme={theme === 'dark' ? darkTheme : lightTheme}>
       <CssBaseline />
       {children}
     </MuiThemeProvider>

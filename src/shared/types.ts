@@ -1,22 +1,31 @@
-export type TabOption = 'onetime' | 'tablock' | 'exact' | 'domain';
-export interface TitleSettings {
-  title: string;
-  originalTitle?: string;
+export type TabOption = 'onetime' | 'tablock' | 'exact' | 'domain' | 'regex';
+export type ThemeState = 'light' | 'dark';
+
+export interface StorageChanges {
+  [key: string]: chrome.storage.StorageChange;
+}
+
+export interface BaseTitle {
   option: TabOption;
+  newTitle: string | null; // null to delete
 }
 
-export interface SavedTitles {
-  [key: string]: TitleSettings;
+export interface TabLockTitle extends BaseTitle {
+  option: 'tablock';
+  tabId: number;
 }
 
-export interface UserSettings {
-  theme: 'light' | 'dark' | 'custom';
-  language: 'english' | 'japanese';
-  defaultTabOption: TabOption;
-}
-
-export interface TabCache {
-  id: number;
+export interface ExactTitle extends BaseTitle {
+  option: 'exact';
   url: string;
-  titleSettings: TitleSettings;
+}
+
+export interface DomainTitle extends BaseTitle {
+  option: 'domain';
+  domain: string;
+}
+
+export interface RegexTitle extends BaseTitle {
+  option: 'regex';
+  regex: RegExp;
 }

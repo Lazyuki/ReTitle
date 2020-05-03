@@ -10,7 +10,7 @@ Get ReTitle on Firefox: https://addons.mozilla.org/en-US/firefox/addon/tab-retit
 
 1. `npm i`
 1. `npm run dev`
-1. Load the folder created by webpack `dist_chrome` or `dist_firfox` on your browser.
+1. Load the folder created by webpack `dist_chrome` or `dist_firefox` on your browser.
 
 #### Deployment
 

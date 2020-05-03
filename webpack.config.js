@@ -1,3 +1,4 @@
+const webpack = require('webpack');
 const WebpackExtensionManifestPlugin = require('webpack-extension-manifest-plugin');
 const baseManifest = require('./manifest.base.json');
 const pkg = require('./package.json');
@@ -6,6 +7,15 @@ const ZipPlugin = require('zip-webpack-plugin');
 
 const dev = process.env.NODE_ENV !== 'production';
 const browser = process.env.BROWSER || 'chrome';
+
+const firefoxManifestSettings = {
+  browser_specific_settings: {
+    gecko: {
+      id: '{15fcc312-c0d6-4d8a-add7-edf49088fefd}',
+      strict_min_version: '42.0',
+    },
+  },
+};
 
 module.exports = {
   mode: dev ? 'development' : 'production',
@@ -24,17 +34,7 @@ module.exports = {
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        use: [
-          { loader: 'babel-loader' },
-          {
-            loader: 'string-replace-loader',
-            options: {
-              search: '__extension_version__',
-              replace: dev ? `${pkg.version}-dev` : pkg.version,
-            },
-          },
-          { loader: 'webpack-conditional-loader' },
-        ],
+        use: [{ loader: 'babel-loader' }],
       },
       {
         test: /\.svg$/,
@@ -44,27 +44,33 @@ module.exports = {
     ],
   },
   plugins: [
+    new webpack.DefinePlugin({
+      BROWSER: JSON.stringify(browser),
+      EXTENSION_VERSION: JSON.stringify(
+        dev ? `${pkg.version}-dev` : pkg.version
+      ),
+    }),
     new WebpackExtensionManifestPlugin({
       config: {
         base: baseManifest,
         extend: {
           version: pkg.version,
+          ...(browser === 'firefox' ? firefoxManifestSettings : {}),
         },
       },
     }),
     new CopyPlugin([
       {
         from: 'static',
-        exclude: 'static/svgs',
+        ignore: ['svgs'], // SVGs get bundled in
       },
     ]),
-    dev
-      ? null
-      : new ZipPlugin({
-          path: '../zip',
-          filename: `ReTitle-${pkg.version}.${browser}.zip`,
-        }),
-  ],
+    !dev &&
+      new ZipPlugin({
+        path: '../zip',
+        filename: `ReTitle-${pkg.version}.${browser}.zip`,
+      }),
+  ].filter(Boolean),
   resolve: {
     extensions: ['.js', 'jsx', '.ts', '.tsx'],
     alias: {

@@ -2,16 +2,13 @@ import { h } from 'preact';
 
 import { makeStyles } from '@material-ui/core/styles';
 import Chip from '@material-ui/core/Chip';
+import Container from '@material-ui/core/Container';
 
 import ChromeIcon from '../../static/svgs/chrome.svg';
 import FirefoxIcon from '../../static/svgs/firefox.svg';
 import GitHubIcon from '../../static/svgs/github.svg';
 
-// Determined by webpack
-let isChrome = true;
-// #if process.env.BROWSER === 'firefox'
-isChrome = false;
-// #endif
+const isChrome = BROWSER === 'chrome';
 
 const chipProps = {
   size: 'small',
@@ -23,13 +20,17 @@ const chipProps = {
   rel: 'noopener noreferrer',
 } as const;
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
     fontSize: '0.8em',
+    borderTop: `1px solid ${theme.palette.primary.main}`,
+  },
+  container: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   links: {
-    display: 'flex',
-    justifyContent: 'center',
     margin: '10px 0',
     '& > *': {
       margin: '0 10px',
@@ -39,9 +40,11 @@ const useStyles = makeStyles({
     },
   },
   copyRight: {
-    textAlign: 'center',
+    flex: 1,
+    textAlign: 'right',
+    marginRight: '20px',
   },
-});
+}));
 
 const Chrome = (
   <Chip
@@ -66,16 +69,18 @@ const Footer = () => {
 
   return (
     <footer className={styles.root}>
-      <div className={styles.links}>
-        {links}
-        <Chip
-          icon={(<GitHubIcon />) as any}
-          label="GitHub"
-          href="https://github.com/Lazyuki/ReTitle"
-          {...chipProps}
-        />
-      </div>
-      <div className={styles.copyRight}>&copy; 2020 Lazyuki</div>
+      <Container maxWidth="lg" className={styles.container}>
+        <div className={styles.links}>
+          {links}
+          <Chip
+            icon={(<GitHubIcon />) as any}
+            label="GitHub"
+            href="https://github.com/Lazyuki/ReTitle"
+            {...chipProps}
+          />
+        </div>
+        <div className={styles.copyRight}>&copy; 2020 Lazyuki</div>
+      </Container>
     </footer>
   );
 };

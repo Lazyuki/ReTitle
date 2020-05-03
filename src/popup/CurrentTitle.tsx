@@ -28,7 +28,7 @@ const CurrentTitle = ({
 } & JSX.HTMLAttributes<HTMLSpanElement>) => {
   const styles = useStyles();
 
-  return currentTitle ? (
+  return (
     <Tooltip title="Paste current title" arrow>
       <div
         className={styles.root}
@@ -40,7 +40,7 @@ const CurrentTitle = ({
         </span>
       </div>
     </Tooltip>
-  ) : null;
+  );
 };
 
 export default CurrentTitle;
