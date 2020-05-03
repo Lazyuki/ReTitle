@@ -38,7 +38,7 @@
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
     "@types/chrome": "^0.0.104",
-    "@types/firefox": "^0.0.29",
+    "@types/firefox-webext-browser": "^70.0.1",
     "babel-loader": "^8.1.0",
     "copy-webpack-plugin": "^5.1.1",
     "eslint": "^6.8.0",
