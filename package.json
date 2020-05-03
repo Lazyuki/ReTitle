@@ -16,13 +16,13 @@
   "scripts": {
     "lint": "eslint src",
     "dev": "npm-run-all --parallel dev:chrome dev:firefox",
-    "dev:chrome": "BROWSER=chrome webpack --watch",
-    "dev:firefox": "BROWSER=firefox webpack --watch",
-    "clean": "rimraf dist_*",
+    "dev:chrome": "webpack --watch --env.BROWSER=chrome ",
+    "dev:firefox": "webpack --watch --env.BROWSER=firefox ",
+    "clean": "rimraf dist*",
     "prebuild": "npm run clean",
     "build": "npm-run-all --parallel build:chrome build:firefox",
-    "build:chrome": "NODE_ENV=production BROWSER=chrome webpack",
-    "build:firefox": "NODE_ENV=production BROWSER=firefox webpack"
+    "build:chrome": "webpack --env.NODE_ENV=production --env.BROWSER=chrome",
+    "build:firefox": "webpack --env.NODE_ENV=production --env.BROWSER=firefox"
   },
   "dependencies": {
     "@material-ui/core": "^4.9.11",
