@@ -1,9 +1,10 @@
 const webpack = require('webpack');
 const WebpackExtensionManifestPlugin = require('webpack-extension-manifest-plugin');
-const baseManifest = require('./manifest.base.json');
-const pkg = require('./package.json');
 const CopyPlugin = require('copy-webpack-plugin');
 const ZipPlugin = require('zip-webpack-plugin');
+
+const baseManifest = require('./manifest.base.json');
+const pkg = require('./package.json');
 
 const firefoxManifestSettings = {
   browser_specific_settings: {

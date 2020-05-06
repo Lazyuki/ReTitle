@@ -5,21 +5,6 @@ const AdvancedSettings = () => {
     <div id="advancedOptions" class="col s12">
       <ul class="collapsible">
         <li>
-          <div class="collapsible-header">Keyboard Shortcut</div>
-          <div class="collapsible-body">
-            <span>
-              Keyboard Shortcut: "Alt+Shift+X"
-              <br />
-              <h2>
-                Edit Keyboard Shortcuts
-                <i class="material-icons" id="keyboard">
-                  keyboard
-                </i>
-              </h2>
-            </span>
-          </div>
-        </li>
-        <li>
           <div class="collapsible-header">Beta Feature: Regex Replacement</div>
           <div class="collapsible-body">
             <span>

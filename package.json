@@ -30,7 +30,8 @@
     "@types/react-redux": "^7.1.7",
     "preact": "^10.4.0",
     "react-redux": "^7.2.0",
-    "redux": "^4.0.5"
+    "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",

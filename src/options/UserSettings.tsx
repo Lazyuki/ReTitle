@@ -2,11 +2,25 @@ import { h } from 'preact';
 import { useState, useEffect, useCallback } from 'preact/compat';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
+import { makeStyles } from '@material-ui/core/styles';
+
+import KeyboardShortcutSettings from './KeyboardShortcutSettings';
 import { ThemeState } from '../shared/types';
 import { KEY_THEME } from '../shared/utils';
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    fontSize: '0.8em',
+    borderTop: `1px solid ${theme.palette.primary.main}`,
+  },
+  label: {
+    margin: '0 12px 0 16px',
+  },
+}));
+
 const UserSettings = () => {
   const [isDark, setIsDark] = useState(false);
+  const styles = useStyles();
 
   useEffect(() => {
     chrome.storage.sync.get(KEY_THEME, function (items) {
@@ -24,17 +38,6 @@ const UserSettings = () => {
     });
   }, []);
 
-  const updateKeyboardShortcut = useCallback((newShortcut?: string) => {
-    if (BROWSER === 'chrome') {
-      chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
-    } else {
-      browser.commands.update({
-        name: '_execute_browser_action',
-        shortcut: newShortcut,
-      });
-    }
-  }, []);
-
   return (
     <div>
       <div>
@@ -46,8 +49,13 @@ const UserSettings = () => {
               name="isDarkTheme"
             />
           }
-          label="Dark Theme"
+          labelPlacement="start"
+          label="Dark Theme:"
         />
+        <div>
+          <label className={styles.label}>Keyboard Shortcut:</label>
+          <KeyboardShortcutSettings />
+        </div>
       </div>
       <p>
         This setting will be used as a default value in the extension pop up
