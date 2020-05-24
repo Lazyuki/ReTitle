@@ -5,6 +5,7 @@ import {
   PREFIX_EXACT,
   PREFIX_DOMAIN,
   PREFIX_REGEX,
+  extractDomain,
 } from './utils';
 import {
   ThemeState,
@@ -14,6 +15,7 @@ import {
   DomainTitle,
   RegexTitle,
   ExactTitle,
+  StoredTitle,
 } from './types';
 
 type GeneralStorageType = { [key: string]: any };
@@ -66,7 +68,7 @@ export function getDefaultOption(callback: (defaultOption: TabOption) => void) {
   chrome.storage.sync.get(KEY_DEFAULT_TAB_OPTION, function (
     items: GeneralStorageType
   ) {
-    callback((items[KEY_DEFAULT_TAB_OPTION] as TabOption) || 'dark');
+    callback((items[KEY_DEFAULT_TAB_OPTION] as TabOption) || 'onetime');
   });
 }
 
@@ -115,7 +117,7 @@ export function decodeTitleMatcher(
       const regex = new RegExp(key.replace(PREFIX_REGEX, ''));
       return { option: 'regex', regex, newTitle };
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
   return null;
@@ -216,39 +218,80 @@ export function decodeTitleMatcher(
 //   }
 // }
 
-export const storageChangeHandler = (
-  onThemeChange: (theme: ThemeState) => void,
-  onDefaultOptionChange: (defaultOption: TabOption) => void,
-  onTablockChange: (tabLock: TabLockTitle) => void,
-  onExactChange: (exact: ExactTitle) => void,
-  onDomainChange: (domain: DomainTitle) => void,
-  onRegexChange: (regex: RegexTitle) => void
-) => (changes: StorageChanges) => {
+export const storageChangeHandler = ({
+  onThemeChange,
+  onDefaultOptionChange,
+  onTablockChange,
+  onExactChange,
+  onDomainChange,
+  onRegexChange,
+}: {
+  onThemeChange?: (theme: ThemeState) => void;
+  onDefaultOptionChange?: (defaultOption: TabOption) => void;
+  onTablockChange?: (tabLock: TabLockTitle) => void;
+  onExactChange?: (exact: ExactTitle) => void;
+  onDomainChange?: (domain: DomainTitle) => void;
+  onRegexChange?: (regex: RegexTitle) => void;
+}) => (changes: StorageChanges) => {
   if (changes[KEY_THEME]) {
-    onThemeChange(changes[KEY_THEME].newValue);
+    onThemeChange?.(changes[KEY_THEME].newValue);
   }
   if (changes[KEY_DEFAULT_TAB_OPTION]) {
-    onDefaultOptionChange(changes[KEY_DEFAULT_TAB_OPTION].newValue);
+    onDefaultOptionChange?.(changes[KEY_DEFAULT_TAB_OPTION].newValue);
   }
   delete changes[KEY_THEME];
   delete changes[KEY_DEFAULT_TAB_OPTION];
 
   for (const changeKey of Object.keys(changes)) {
-    const newValue = changes[changeKey].newValue;
-    const newTitle = decodeTitleMatcher(changeKey, newValue);
+    const newValue: StoredTitle = changes[changeKey].newValue;
+    const newTitle = decodeTitleMatcher(changeKey, newValue.newTitle);
     switch (newTitle?.option) {
       case 'tablock':
-        onTablockChange(newTitle);
+        onTablockChange?.(newTitle);
         break;
       case 'exact':
-        onExactChange(newTitle);
+        onExactChange?.(newTitle);
         break;
       case 'domain':
-        onDomainChange(newTitle);
+        onDomainChange?.(newTitle);
         break;
       case 'regex':
-        onRegexChange(newTitle);
+        onRegexChange?.(newTitle);
         break;
     }
   }
 };
+
+export function saveTitle(
+  newTitle: string,
+  option: TabOption,
+  currentTab: chrome.tabs.Tab,
+  regex?: RegExp
+) {
+  const obj: { [key: string]: StoredTitle } = {};
+  const url = currentTab.url;
+  switch (option) {
+    case 'tablock': {
+      obj[`${PREFIX_TABLOCK}${currentTab.id}`] = { newTitle };
+      break;
+    }
+    case 'exact': {
+      obj[`${PREFIX_EXACT}${url}`] = { newTitle };
+      break;
+    }
+    case 'domain': {
+      const urlDomain = extractDomain(url);
+      obj[`${PREFIX_DOMAIN}${urlDomain}`] = { newTitle };
+      break;
+    }
+    case 'regex': {
+      obj[`${PREFIX_REGEX}${regex}`] = { newTitle };
+      break;
+    }
+    default:
+      // Don't save anything
+      window.close();
+      return;
+  }
+  chrome.storage.sync.set(obj, () => window.close());
+}

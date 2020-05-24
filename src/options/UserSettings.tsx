@@ -1,12 +1,17 @@
 import { h } from 'preact';
 import { useState, useEffect, useCallback } from 'preact/compat';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
+import FormControl from '@material-ui/core/FormControl';
+import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
+import Check from '@material-ui/icons/Check';
 
 import KeyboardShortcutSettings from './KeyboardShortcutSettings';
-import { ThemeState } from '../shared/types';
+import { ThemeState, TabOption } from '../shared/types';
 import { KEY_THEME } from '../shared/utils';
+import { getDefaultOption, setDefaultOption } from '../shared/StorageHandler';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -15,33 +20,62 @@ const useStyles = makeStyles((theme) => ({
   },
   label: {
     margin: '0 12px 0 16px',
+    fontWeight: 600,
+  },
+  radios: {
+    margin: '10px 0',
+    paddingLeft: '20px',
+  },
+  button: {
+    textAlign: 'center',
+  },
+  saved: {
+    opacity: 0,
+    zIndex: -1,
+    position: 'absolute',
+    marginTop: '4px',
+    marginLeft: '-20px',
+    display: 'inline-block',
+    transition: '0.2s',
+    '&[data-shown="true"]': {
+      opacity: 1,
+      marginLeft: '10px',
+    },
+  },
+  check: {
+    verticalAlign: 'middle',
+    color: theme.palette.success.main,
   },
 }));
 
 const UserSettings = () => {
-  const [isDark, setIsDark] = useState(false);
   const styles = useStyles();
+  const [option, setOption] = useState<TabOption>('onetime');
+
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    chrome.storage.sync.get(KEY_THEME, function (items) {
-      if (items[KEY_THEME]) {
-        const theme: ThemeState = items[KEY_THEME];
-        setIsDark(theme === 'dark');
-      }
-    });
+    getDefaultOption(setOption);
   }, []);
 
-  const toggleTheme = useCallback((e: any) => {
-    setIsDark(e.target.checked);
-    chrome.storage.sync.set({
-      [KEY_THEME]: e.target.checked ? 'dark' : 'light',
-    });
+  const handleOptionChange = useCallback((e: any) => {
+    setOption(e.target.value);
   }, []);
+
+  const saveDefaultOption = useCallback(() => {
+    setDefaultOption(option, () => {
+      setSaved(true);
+      setTimeout(() => {
+        setSaved(false);
+      }, 4000);
+    });
+  }, [option]);
 
   return (
     <div>
       <div>
-        <FormControlLabel
+        {/* Popup flickers when using light theme, so stick to dark theme until I figure out a workaround */}
+        {/* <FormControlLabel
           control={
             <Switch
               checked={isDark}
@@ -49,66 +83,86 @@ const UserSettings = () => {
               name="isDarkTheme"
             />
           }
-          labelPlacement="start"
+          labelPlacement="start" 
           label="Dark Theme:"
-        />
+        /> */}
         <div>
           <label className={styles.label}>Keyboard Shortcut:</label>
           <KeyboardShortcutSettings />
         </div>
       </div>
+      <label className={styles.label}>Default Option:</label>
       <p>
-        This setting will be used as a default value in the extension pop up
+        This option will be used as the default value in the extension popup
         menu. These options are in the order of priority, so for example{' '}
         <code>Set for this tab</code> will be matched instead of
         <code>Only exact match</code> if the given tab matches both.
       </p>
-      <form class="col s12" id="form">
-        <p>
-          <label for="onetime">
-            <input class="with-gap" name="option" type="radio" id="onetime" />
-            <span>
-              <strong>Only this time</strong>: Temporarily sets the title, so
-              it's not persistent at all. Reloading or changing the URL loses
-              this change.
-            </span>
-          </label>
-        </p>
-        <p>
-          <label for="tablock">
-            <input class="with-gap" name="option" type="radio" id="tablock" />
-            <span>
-              <strong>Set for this tab</strong>: This will match the current tab
-              no matter the URL, but will be lost once the tab is closed. Note
-              that if your browser is restarted, this will be lost.
-            </span>
-          </label>
-        </p>
-        <p>
-          <label for="exact">
-            <input class="with-gap" name="option" type="radio" id="exact" />
-            <span>
-              <strong>Only exact match</strong>: This will match the URL and it
-              will be persistent across sessions.
-            </span>
-          </label>
-        </p>
-        <p>
-          <label for="domain">
-            <input class="with-gap" name="option" type="radio" id="domain" />
-            <span>
-              <strong>Set for this domain</strong>: This will match the domain
-              part of the URL and it will be persistent across sessions.
-            </span>
-          </label>
-        </p>
-        <div class="btn" id="save" type="submit">
+      <FormControl className={styles.radios} component="fieldset">
+        <RadioGroup
+          aria-label="option"
+          name="option"
+          value={option}
+          onChange={handleOptionChange}
+        >
+          <FormControlLabel
+            value="onetime"
+            control={<Radio color="primary" />}
+            label={
+              <div>
+                <code>Set it temporarily</code>
+                Temporarily sets the title, so it does not persist at all.
+                Reloading or changing the URL loses the changed title.
+              </div>
+            }
+          />
+          <FormControlLabel
+            value="tab"
+            control={<Radio color="primary" />}
+            label={
+              <div>
+                <code>Set for this tab</code>
+                This will match the current tab no matter the URL, but will be
+                lost once the tab is closed. Note that if your browser is
+                restarted, this will be lost.
+              </div>
+            }
+          />
+          <FormControlLabel
+            value="exact"
+            control={<Radio color="primary" />}
+            label={
+              <div>
+                <code>Set for this exact URL</code>
+                This will match the URL and it will be persistent across
+                sessions.
+              </div>
+            }
+          />
+          <FormControlLabel
+            value="domain"
+            control={<Radio color="primary" />}
+            label={
+              <div>
+                <code>Set for this domain</code>
+                This will match the domain part of the URL and it will be
+                persistent across sessions.
+              </div>
+            }
+          />
+        </RadioGroup>
+      </FormControl>
+      <div className={styles.button}>
+        <Button variant="contained" color="primary" onClick={saveDefaultOption}>
           SAVE
-          <i class="material-icons" id="check">
-            check
-          </i>
-        </div>
-      </form>
+        </Button>
+        <span className={styles.saved} data-shown={saved}>
+          Saved!{' '}
+          <span className={styles.check}>
+            <Check />
+          </span>
+        </span>
+      </div>
     </div>
   );
 };

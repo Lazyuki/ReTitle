@@ -1,6 +1,10 @@
 import { h } from 'preact';
 import { FC, useState, useMemo, useEffect, useCallback } from 'preact/compat';
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import {
+  createMuiTheme,
+  MuiThemeProvider,
+  makeStyles,
+} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { StorageChanges, ThemeState } from './types';
 import { KEY_THEME } from './utils';
@@ -44,8 +48,24 @@ const darkTheme = createMuiTheme({
   ...StyleFix,
 });
 
+const globalStyles = makeStyles({
+  '@global': {
+    code: {
+      display: 'inline-block',
+      padding: '2px 5px',
+      borderRadius: '5px',
+      color: 'white',
+      background: '#232323',
+      margin: '0 3px',
+      fontFamily: '"Menlo", "Lucida Console", monospace',
+      fontSize: '0.8em',
+    },
+  },
+});
+
 const ReTitleThemeWrapper: FC = ({ children }) => {
   const [theme, setTheme] = useState<ThemeState>('dark');
+  globalStyles();
 
   useEffect(() => {
     chrome.storage.sync.get(KEY_THEME, (items) => {

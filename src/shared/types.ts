@@ -5,9 +5,15 @@ export interface StorageChanges {
   [key: string]: chrome.storage.StorageChange;
 }
 
+export interface StoredTitle {
+  newTitle: string;
+  disabled?: boolean;
+}
+
 export interface BaseTitle {
   option: TabOption;
-  newTitle: string | null; // null to delete
+  newTitle: string | null; // empty string is allowed. Use null to delete
+  disabled?: boolean;
 }
 
 export interface TabLockTitle extends BaseTitle {

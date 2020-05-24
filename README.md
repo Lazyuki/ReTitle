@@ -6,7 +6,7 @@ Get ReTitle on Chrome: https://chrome.google.com/webstore/detail/tab-retitle/hil
 
 Get ReTitle on Firefox: https://addons.mozilla.org/en-US/firefox/addon/tab-retitle/
 
-#### Development
+#### Develop
 
 1. Fork and clone this repo.
 1. `npm i`

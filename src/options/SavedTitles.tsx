@@ -32,7 +32,7 @@ const SavedTitles = () => {
   const [domains, setDomains] = useState<DomainTitle[]>([]);
   const [regexes, setRegexes] = useState<RegexTitle[]>([]);
 
-  const handleTablock = useCallback((tablock: TabLockTitle) => {
+  const onTablockChange = useCallback((tablock: TabLockTitle) => {
     if (tablock.newTitle) {
       setTablocks((p) => [...p, tablock]);
     } else {
@@ -41,27 +41,25 @@ const SavedTitles = () => {
     }
   }, []);
 
-  const handleExact = useCallback((exact: ExactTitle) => {
+  const onExactChange = useCallback((exact: ExactTitle) => {
     setExacts((p) => [...p, exact]);
   }, []);
 
-  const handleDomain = useCallback((domain: DomainTitle) => {
+  const onDomainChange = useCallback((domain: DomainTitle) => {
     setDomains((p) => [...p, domain]);
   }, []);
 
-  const handleRegex = useCallback((regex: RegexTitle) => {
+  const onRegexChange = useCallback((regex: RegexTitle) => {
     setRegexes((p) => [...p, regex]);
   }, []);
 
   useEffect(() => {
-    const handler = storageChangeHandler(
-      noop,
-      noop,
-      handleTablock,
-      handleExact,
-      handleDomain,
-      handleRegex
-    );
+    const handler = storageChangeHandler({
+      onTablockChange,
+      onExactChange,
+      onDomainChange,
+      onRegexChange,
+    });
     chrome.storage.onChanged.addListener(handler);
     return () => chrome.storage.onChanged.removeListener(handler);
   }, []);
@@ -70,24 +68,64 @@ const SavedTitles = () => {
     <div>
       <ul class="description">
         <li>
-          URLs like <code>*example.com*</code> are set for the domain.
-        </li>
-        <li>
           Use <code>$0</code> to insert the original title. So if you want
           <code>Title</code> to say <code>Good Title</code>, set the title name
           to <code>Good $0</code>.
         </li>
       </ul>
-      <List component="nav" className={styles.root}>
+      <h4>Tabs</h4>
+      <List className={styles.root}>
         {tabLocks.map((t) => {
           return (
             <ListItem button>
-              <ListItemText primary={t.newTitle} />
+              <ListItemText
+                primary={`Tab ID: ${t.tabId} | Title: ${t.newTitle}`}
+              />
               <ListItemIcon>
                 <EditIcon />
               </ListItemIcon>
+            </ListItem>
+          );
+        })}
+      </List>
+      <h4>Exact URLs</h4>
+      <List className={styles.root}>
+        {exacts.map((t) => {
+          return (
+            <ListItem button>
+              <ListItemText primary={`URL: ${t.url} | Title: ${t.newTitle}`} />
               <ListItemIcon>
-                <DeleteIcon />
+                <EditIcon />
+              </ListItemIcon>
+            </ListItem>
+          );
+        })}
+      </List>
+      <h4>Domains</h4>
+      <List className={styles.root}>
+        {domains.map((t) => {
+          return (
+            <ListItem button>
+              <ListItemText
+                primary={`Domain: ${t.domain} | Title: ${t.newTitle}`}
+              />
+              <ListItemIcon>
+                <EditIcon />
+              </ListItemIcon>
+            </ListItem>
+          );
+        })}
+      </List>
+      <h4>Regexes</h4>
+      <List className={styles.root}>
+        {regexes.map((t) => {
+          return (
+            <ListItem button>
+              <ListItemText
+                primary={`Regex: ${t.regex} | Title: ${t.newTitle}`}
+              />
+              <ListItemIcon>
+                <EditIcon />
               </ListItemIcon>
             </ListItem>
           );

@@ -13,6 +13,7 @@ import CurrentTitle from './CurrentTitle';
 import BookmarkTitle from './BookmarkTitle';
 import { extractDomain } from '../shared/utils';
 import { TabOption } from '../shared/types';
+import { saveTitle } from '../shared/StorageHandler';
 
 const useStyles = makeStyles({
   root: {
@@ -39,41 +40,6 @@ const useStyles = makeStyles({
     fontSize: '12px',
   },
 });
-
-function saveTitle(
-  newTitle: string,
-  option: TabOption,
-  currentTab: chrome.tabs.Tab
-) {
-  if (option === 'tablock') {
-    const obj: { [key: string]: object } = {};
-    obj[`Tab#${currentTab.id}`] = { title: newTitle };
-    chrome.storage.sync.set(obj, () => window.close());
-    return;
-  } else if (option !== 'onetime') {
-    setStorage(newTitle, option === 'domain', currentTab);
-  }
-  window.close();
-}
-
-function setStorage(
-  newTitle: string,
-  domain: boolean,
-  currentTab: chrome.tabs.Tab
-) {
-  const url = currentTab.url;
-  if (!url) return; // No URL?
-  const obj: { [key: string]: object } = {};
-  if (domain) {
-    // only for domain
-    const urlDomain = extractDomain(url);
-    obj[`*${urlDomain}*`] = { title: newTitle };
-  } else {
-    // is exact
-    obj[url] = { title: newTitle };
-  }
-  chrome.storage.sync.set(obj, () => window.close());
-}
 
 const Form = () => {
   const [tab, setTab] = useState<chrome.tabs.Tab | null>(null);
@@ -135,6 +101,8 @@ const Form = () => {
     }
   }, [inputValue, option, tab]);
 
+  const domain = extractDomain(tab?.url);
+
   return (
     <div className={styles.root}>
       <Gear />
@@ -184,7 +152,8 @@ const Form = () => {
           <FormControlLabel
             value="domain"
             control={<Radio color="primary" />}
-            label={`Set for this domain: ${extractDomain(tab?.url)}`}
+            label={`Set for this domain: ${domain}`}
+            disabled={!domain}
           />
         </RadioGroup>
       </FormControl>
