@@ -1,10 +1,16 @@
-# ReTitle: Browser Extension for Chrome and Firefox
+# ReTitle: Chrome and Firefox Extension for Renaming Tabs Easily
 
-Rename tab titles easily
+## ⚠️ This is the V2 branch that's not released yet as it is still being developed.
 
-Get ReTitle on Chrome: https://chrome.google.com/webstore/detail/tab-retitle/hilgambgdpjgljhjdaccadahckpdiapo
+Please check the master branch for the currently released version.
 
-Get ReTitle on Firefox: https://addons.mozilla.org/en-US/firefox/addon/tab-retitle/
+### Get ReTitle on Chrome
+
+https://chrome.google.com/webstore/detail/tab-retitle/hilgambgdpjgljhjdaccadahckpdiapo
+
+### Get ReTitle on Firefox
+
+https://addons.mozilla.org/en-US/firefox/addon/tab-retitle/
 
 #### Develop
 
