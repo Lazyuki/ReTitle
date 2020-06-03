@@ -15,7 +15,7 @@ import {
   DomainTitle,
   RegexTitle,
 } from '../shared/types';
-import { storageChangeHandler } from '../shared/StorageHandler';
+import { storageChangeHandler, getTitles } from '../shared/StorageHandler';
 
 const noop = () => {};
 
@@ -55,6 +55,12 @@ const SavedTitles = () => {
 
   useEffect(() => {
     const handler = storageChangeHandler({
+      onTablockChange,
+      onExactChange,
+      onDomainChange,
+      onRegexChange,
+    });
+    getTitles({
       onTablockChange,
       onExactChange,
       onDomainChange,

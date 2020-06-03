@@ -18,7 +18,7 @@ import {
   StoredTitle,
 } from './types';
 
-type GeneralStorageType = { [key: string]: any };
+type GeneralStorageType = { [key: string]: unknown };
 
 /**
  * This gets all items in storage. Use `getTitles` instead for
@@ -29,13 +29,40 @@ export function getAllItems(callback: (items: GeneralStorageType) => void) {
 }
 
 /**
- * Get all title matchers.
+ * Get all titles and call title setters
  */
-export function getTitles(callback: (items: GeneralStorageType) => void) {
+export function getTitles({
+  onTablockChange,
+  onExactChange,
+  onDomainChange,
+  onRegexChange,
+}: {
+  onTablockChange?: (tabLock: TabLockTitle) => void;
+  onExactChange?: (exact: ExactTitle) => void;
+  onDomainChange?: (domain: DomainTitle) => void;
+  onRegexChange?: (regex: RegexTitle) => void;
+}) {
   chrome.storage.sync.get(function (items: GeneralStorageType) {
     delete items[KEY_THEME];
     delete items[KEY_DEFAULT_TAB_OPTION];
-    callback(items);
+    for (const titleKey of Object.keys(items)) {
+      const title = items[titleKey] as StoredTitle;
+      const newTitle = decodeTitleMatcher(titleKey, title.newTitle);
+      switch (newTitle?.option) {
+        case 'tablock':
+          onTablockChange?.(newTitle);
+          break;
+        case 'exact':
+          onExactChange?.(newTitle);
+          break;
+        case 'domain':
+          onDomainChange?.(newTitle);
+          break;
+        case 'regex':
+          onRegexChange?.(newTitle);
+          break;
+      }
+    }
   });
 }
 
@@ -245,6 +272,7 @@ export const storageChangeHandler = ({
   for (const changeKey of Object.keys(changes)) {
     const newValue: StoredTitle = changes[changeKey].newValue;
     const newTitle = decodeTitleMatcher(changeKey, newValue.newTitle);
+    console.log(newTitle);
     switch (newTitle?.option) {
       case 'tablock':
         onTablockChange?.(newTitle);

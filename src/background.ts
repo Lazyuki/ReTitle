@@ -162,13 +162,13 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
 });
 
 // When closing a tab, clean up tab lock titles
-chrome.tabs.onRemoved.addListener(function (tabId, info) {
-  chrome.storage.sync.get(`Tab#${tabId}`, function (items) {
-    if (items[`Tab#${tabId}`]) {
-      chrome.storage.sync.remove(`Tab#${tabId}`);
-    }
-  });
-});
+// chrome.tabs.onRemoved.addListener(function (tabId, info) {
+//   chrome.storage.sync.get(`Tab#${tabId}`, function (items) {
+//     if (items[`Tab#${tabId}`]) {
+//       chrome.storage.sync.remove(`Tab#${tabId}`);
+//     }
+//   });
+// });
 
 // Simple context menu
 chrome.contextMenus.create({ id: 'ctxmnu', title: 'Set temporary title' });

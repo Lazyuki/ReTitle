@@ -13,7 +13,7 @@ import CurrentTitle from './CurrentTitle';
 import BookmarkTitle from './BookmarkTitle';
 import { extractDomain } from '../shared/utils';
 import { TabOption } from '../shared/types';
-import { saveTitle } from '../shared/StorageHandler';
+import { saveTitle, getDefaultOption } from '../shared/StorageHandler';
 
 const useStyles = makeStyles({
   root: {
@@ -63,15 +63,7 @@ const Form = () => {
       const currentTab = tabs[0];
       setTab(currentTab);
       setInputAndSelect(currentTab.title || '');
-      chrome.storage.sync.get('options', (items) => {
-        if (items['options']) {
-          const options = items['options'];
-          if (options.domain) setOption('domain');
-          if (options.onetime) setOption('onetime');
-          if (options.tablock) setOption('tablock');
-          if (options.exact) setOption('exact');
-        }
-      });
+      getDefaultOption(setOption);
     },
     [setInputAndSelect]
   );
@@ -140,7 +132,7 @@ const Form = () => {
             label="Set it temporarily"
           />
           <FormControlLabel
-            value="tab"
+            value="tablock"
             control={<Radio color="primary" />}
             label="Set for this tab"
           />

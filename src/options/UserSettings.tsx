@@ -4,13 +4,10 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
-import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
-import Check from '@material-ui/icons/Check';
 
 import KeyboardShortcutSettings from './KeyboardShortcutSettings';
-import { ThemeState, TabOption } from '../shared/types';
-import { KEY_THEME } from '../shared/utils';
+import { TabOption } from '../shared/types';
 import { getDefaultOption, setDefaultOption } from '../shared/StorageHandler';
 
 const useStyles = makeStyles((theme) => ({
@@ -52,24 +49,15 @@ const UserSettings = () => {
   const styles = useStyles();
   const [option, setOption] = useState<TabOption>('onetime');
 
-  const [saved, setSaved] = useState(false);
-
   useEffect(() => {
     getDefaultOption(setOption);
   }, []);
 
   const handleOptionChange = useCallback((e: any) => {
-    setOption(e.target.value);
+    const newOption: TabOption = e.target.value;
+    setOption(newOption);
+    setDefaultOption(newOption);
   }, []);
-
-  const saveDefaultOption = useCallback(() => {
-    setDefaultOption(option, () => {
-      setSaved(true);
-      setTimeout(() => {
-        setSaved(false);
-      }, 4000);
-    });
-  }, [option]);
 
   return (
     <div>
@@ -117,7 +105,7 @@ const UserSettings = () => {
             }
           />
           <FormControlLabel
-            value="tab"
+            value="tablock"
             control={<Radio color="primary" />}
             label={
               <div>
@@ -152,17 +140,6 @@ const UserSettings = () => {
           />
         </RadioGroup>
       </FormControl>
-      <div className={styles.button}>
-        <Button variant="contained" color="primary" onClick={saveDefaultOption}>
-          SAVE
-        </Button>
-        <span className={styles.saved} data-shown={saved}>
-          Saved!{' '}
-          <span className={styles.check}>
-            <Check />
-          </span>
-        </span>
-      </div>
     </div>
   );
 };
