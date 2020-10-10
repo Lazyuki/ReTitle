@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
   main: {
     flex: '1',
-    overflow: 'scroll',
+    overflow: 'auto',
   },
   tabRoot: {
     flexGrow: 1,
