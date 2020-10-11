@@ -43,6 +43,7 @@ const BookmarkTitle = ({
       }
     }
   }, [url]);
+
   return bookmarkedTitle !== null ? (
     <Tooltip title="Paste bookmark title" arrow>
       <div

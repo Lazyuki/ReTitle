@@ -321,5 +321,5 @@ export function saveTitle(
       window.close();
       return;
   }
-  chrome.storage.sync.set(obj, () => window.close());
+  chrome.storage.sync.set(obj, window.close);
 }

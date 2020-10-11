@@ -11,6 +11,7 @@ const useStyles = makeStyles({
     '&:hover': {
       outline: 'none',
     },
+    color: 'white',
   },
 });
 

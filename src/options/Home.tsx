@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function a11yProps(index: any) {
+function a11yProps(index: number) {
   return {
     id: `vertical-tab-${index}`,
     'aria-controls': `vertical-tabpanel-${index}`,
@@ -43,7 +43,7 @@ function a11yProps(index: any) {
 
 interface TabPanelProps {
   children?: any;
-  index: any;
+  index: number;
   value: any;
 }
 

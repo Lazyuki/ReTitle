@@ -25,7 +25,7 @@ module.exports = (env) => {
     entry: {
       popup: './src/popup/index.tsx',
       options: './src/options/index.tsx',
-      background: './src/background.ts',
+      background: './src/background/index.ts',
     },
     output: {
       filename: '[name].js',

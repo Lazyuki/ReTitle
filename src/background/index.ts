@@ -1,5 +1,5 @@
-import { TabOption } from './shared/types';
-import { KEY_DEFAULT_TAB_OPTION } from './shared/utils';
+import './onInstall';
+import './tablockManager';
 
 const REGEX_DOMAIN = /https?:\/\/([^\s/]+)(?:$|\/.*)/;
 const validRegex = /^\/((?:[^/]|\\\/)+)\/((?:[^/]|\\\/)+)\/(gi?|ig?)?$/;
@@ -67,23 +67,21 @@ function insertTitle(tabId: number, newTitle: string) {
     cache.push(newTitle);
     //if (recursionStopper.shouldStop(tabId)) return;
     console.log('Changing the title to ' + newTitle);
+    const escapedTitle = newTitle.replace(/'/g, "\\'");
     chrome.tabs.executeScript(
       tabId,
       {
         code: `
         if (document.title) {
-          document.title='${newTitle.replace(/'/g, "\\'")}';
+          document.title='${escapedTitle}';
         } else {
-          let t = document.createElement('title');
-          t.appendChild(document.createTextNode('${newTitle.replace(
-            /'/g,
-            "\\'"
-          )}'));
+          var t = document.createElement('title');
+          t.appendChild(document.createTextNode('${escapedTitle}'));
           if (document.head) {
             var h = document.getElementsByTagName('head')[0];
           } else {
             var h = document.createElement('head');
-            let d = document.documentElement;
+            var d = document.documentElement;
             setTimeout(function() {d.insertBefore(h, d.firstChild)}, 1000);
           }
           h.appendChild(t);
@@ -104,8 +102,8 @@ function insertTitle(tabId: number, newTitle: string) {
 chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
   if (info.title) {
     const infoTitle = info.title;
-    let url = tab.url!;
-    let index = cache.indexOf(info.title);
+    let url = tab.url || '';
+    let index = cache.indexOf(infoTitle);
     if (index > -1) {
       cache.splice(index, 1);
       return; // I'm the one who changed the title to this
@@ -114,8 +112,8 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
       if (items[`Tab#${tabId}`]) {
         // Tab lock has the highest priority
         console.log('TabID ' + tabId + ' detected.');
-        let title = items[`Tab#${tabId}`]['title'];
-        if (title == info.title) return;
+        const title = items[`Tab#${tabId}`]['title'];
+        if (title === infoTitle) return;
         insertTitle(tabId, decodeTitle(infoTitle, title));
       } else if (items[url]) {
         // Exact URL match takes precedence over domain-level titles.
@@ -161,15 +159,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
   }
 });
 
-// When closing a tab, clean up tab lock titles
-// chrome.tabs.onRemoved.addListener(function (tabId, info) {
-//   chrome.storage.sync.get(`Tab#${tabId}`, function (items) {
-//     if (items[`Tab#${tabId}`]) {
-//       chrome.storage.sync.remove(`Tab#${tabId}`);
-//     }
-//   });
-// });
-
 // Simple context menu
 chrome.contextMenus.create({ id: 'ctxmnu', title: 'Set temporary title' });
 chrome.contextMenus.onClicked.addListener(function (info, tab) {
@@ -183,48 +172,4 @@ chrome.contextMenus.onClicked.addListener(function (info, tab) {
 // Receives rename message from popup.js
 chrome.runtime.onMessage.addListener(function (request) {
   insertTitle(request.id, decodeTitle(request.oldTitle, request.newTitle));
-});
-
-// Clean up any residuals from crash or something on startup
-chrome.runtime.onStartup.addListener(function () {
-  chrome.storage.sync.get(function (items) {
-    for (let item in items) {
-      if (item.startsWith('Tab#')) {
-        // no old tablocks
-        chrome.storage.sync.remove(item);
-      }
-    }
-  });
-});
-
-interface LegacyUserOptionsSchema {
-  options: { [key in TabOption]: boolean };
-}
-type LegacyStorageSchema = {
-  [key: string]: { title: string };
-} & LegacyUserOptionsSchema;
-
-// UPDATE PREVIOUSLY STORED TITLES ON EXTENSION UPDATE
-chrome.runtime.onInstalled.addListener((details) => {
-  const prev = details.previousVersion;
-  // Upgrading from v0 or v1
-  if (prev && (prev.startsWith('0.') || prev.startsWith('1.'))) {
-    chrome.storage.sync.get((items) => {
-      const storage: LegacyStorageSchema = items as LegacyStorageSchema;
-      for (const key in storage) {
-        // v0 tab lock mistake.
-        if (key.startsWith('#')) {
-          chrome.storage.sync.remove(key);
-        }
-        if (key === 'options') {
-          const options = storage.options;
-          let option: TabOption = 'onetime';
-          if (options.domain) option = 'domain';
-          if (options.tablock) option = 'tablock';
-          if (options.exact) option = 'exact';
-          chrome.storage.sync.set({ [KEY_DEFAULT_TAB_OPTION]: option });
-        }
-      }
-    });
-  }
 });

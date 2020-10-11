@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "lib": ["es6", "DOM", "DOM.Iterable"],
+    "target": "es2016",
+    "lib": ["es7", "DOM", "DOM.Iterable"],
     "strict": true,
     "esModuleInterop": true,
     "jsx": "react",
