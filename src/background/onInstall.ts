@@ -1,5 +1,5 @@
 import { TabOption } from '../shared/types';
-import { KEY_DEFAULT_TAB_OPTION } from '../shared/utils';
+import { KEY_DEFAULT_TAB_OPTION, PREFIX_REGEX } from '../shared/utils';
 
 // On Extension Update
 interface LegacyUserOptionsSchema {
@@ -20,7 +20,9 @@ chrome.runtime.onInstalled.addListener((details) => {
         // v0 tab lock mistake.
         if (key.startsWith('#')) {
           chrome.storage.sync.remove(key);
+          continue;
         }
+        // v1 options key
         if (key === 'options') {
           const options = storage.options;
           let option: TabOption = 'onetime';
@@ -28,6 +30,15 @@ chrome.runtime.onInstalled.addListener((details) => {
           if (options.tablock) option = 'tablock';
           if (options.exact) option = 'exact';
           chrome.storage.sync.set({ [KEY_DEFAULT_TAB_OPTION]: option });
+          continue;
+        }
+        const item = storage[key];
+        // v1 regex URL matcher
+        if (key.startsWith('*') && key.endsWith('*')) {
+          chrome.storage.sync.remove(key);
+          chrome.storage.sync.set({
+            [`${PREFIX_REGEX}`]: item,
+          });
         }
       }
     });

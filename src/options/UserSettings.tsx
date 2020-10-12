@@ -8,7 +8,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import KeyboardShortcutSettings from './KeyboardShortcutSettings';
 import { TabOption } from '../shared/types';
-import { getDefaultOption, setDefaultOption } from '../shared/StorageHandler';
+import { getDefaultOption, setDefaultOption } from '../shared/storageHandler';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -99,8 +99,8 @@ const UserSettings = () => {
             label={
               <div>
                 <code>Set it temporarily</code>
-                Temporarily sets the title, so it does not persist at all.
-                Reloading or changing the URL loses the changed title.
+                Temporarily sets the title just once which does not persist at
+                all. Reloading or changing the URL loses the changed title.
               </div>
             }
           />
@@ -111,8 +111,10 @@ const UserSettings = () => {
               <div>
                 <code>Set for this tab</code>
                 This will match the current tab no matter the URL, but will be
-                lost once the tab is closed. Note that if your browser is
-                restarted, this will be lost.
+                lost once the tab is closed. This will persist if you close the
+                window and reopen it with previous tabs. However, if the browser
+                crashes or the window didn't load the tabs on startup then this
+                settings will be lost.
               </div>
             }
           />
@@ -122,8 +124,10 @@ const UserSettings = () => {
             label={
               <div>
                 <code>Set for this exact URL</code>
-                This will match the URL and it will be persistent across
-                sessions.
+                This will match the URL exactly and it will be persistent across
+                sessions. You can set this to ignore URL parameters such as{' '}
+                <code>#</code>, <code>&amp;</code>, and <code>?</code> to be
+                ignored in the saved titles page.
               </div>
             }
           />

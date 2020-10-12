@@ -7,13 +7,15 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import Button from '@material-ui/core/Button';
+import Switch from '@material-ui/core/Switch';
 
 import Gear from './Gear';
 import CurrentTitle from './CurrentTitle';
 import BookmarkTitle from './BookmarkTitle';
 import { extractDomain } from '../shared/utils';
 import { TabOption } from '../shared/types';
-import { saveTitle, getDefaultOption } from '../shared/StorageHandler';
+import { saveTitle, getDefaultOption } from '../shared/storageHandler';
+import RegexInputGroup from '../shared/RegexInputGroup';
 
 const useStyles = makeStyles({
   root: {
@@ -41,12 +43,41 @@ const useStyles = makeStyles({
   },
 });
 
+function getCurrentOption() {
+  const META_OPTION = 'retitle:option';
+  const metaOption = document.querySelector(`meta[name='${META_OPTION}']`);
+  if (metaOption) {
+    return metaOption.getAttribute('content');
+  }
+  return null;
+}
+
 const Form = () => {
   const [tab, setTab] = useState<chrome.tabs.Tab | null>(null);
   const [option, setOption] = useState<TabOption>('onetime');
+  const [activeOption, setActiveOption] = useState<TabOption | null>(null);
+  const [useRegex, setUseRegex] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const styles = useStyles();
+
+  useEffect(() => {
+    if (tab && typeof tab.id === 'number') {
+      chrome.tabs.executeScript(
+        tab.id,
+        {
+          code: `${getCurrentOption.toString()}; getCurrentOption();`,
+          runAt: 'document-end',
+        },
+        (results) => {
+          const result = results[0];
+          if (result) {
+            setActiveOption(result);
+          }
+        }
+      );
+    }
+  }, [tab]);
 
   const setInputAndSelect = useCallback(
     (newInput?: string) => {
@@ -103,22 +134,41 @@ const Form = () => {
         setInputValue={setInputAndSelect}
       />
       <BookmarkTitle url={tab?.url} setInputValue={setInputAndSelect} />
-      <TextField
-        multiline
-        className={styles.input}
-        inputRef={inputRef}
-        label="New Title"
-        value={inputValue}
-        onKeyPress={(e: any) => {
-          if (e.which == 13 && !e.shiftKey) {
-            e.preventDefault();
-            setTitle();
-            return false;
-          }
-        }}
-        onChange={(e: any) => setInputValue(e.target.value)}
-        onFocus={(e: any) => e.target.select()}
+      <FormControlLabel
+        control={
+          <Switch
+            checked={useRegex}
+            onChange={() => setUseRegex((p) => !p)}
+            name="use-regex"
+            color="primary"
+          />
+        }
+        label="Use Regex"
       />
+      {useRegex ? (
+        <RegexInputGroup
+          onChange={(regexString: string) => setInputValue(regexString)}
+        />
+      ) : (
+        <TextField
+          multiline
+          className={styles.input}
+          inputRef={inputRef}
+          label="New Title"
+          value={inputValue}
+          onKeyPress={(e: any) => {
+            if (e.which == 13 && !e.shiftKey) {
+              e.preventDefault();
+              setTitle();
+              return false;
+            }
+          }}
+          onChange={(e: any) => setInputValue(e.target.value)}
+          onFocus={(e: any) => e.target.select()}
+        />
+      )}
+
+      {activeOption && <div>Option: {activeOption} is active</div>}
       <FormControl className={styles.radios} component="fieldset">
         <RadioGroup
           aria-label="option"

@@ -7,7 +7,7 @@ import {
   PREFIX_REGEX,
   extractDomain,
 } from './utils';
-import {
+import type {
   ThemeState,
   TabOption,
   StorageChanges,
@@ -16,6 +16,7 @@ import {
   RegexTitle,
   ExactTitle,
   StoredTitle,
+  NewTitle,
 } from './types';
 
 type GeneralStorageType = { [key: string]: unknown };
@@ -26,6 +27,11 @@ type GeneralStorageType = { [key: string]: unknown };
  */
 export function getAllItems(callback: (items: GeneralStorageType) => void) {
   chrome.storage.sync.get(callback);
+}
+export function getAllLocalItems(
+  callback: (items: GeneralStorageType) => void
+) {
+  chrome.storage.local.get(callback);
 }
 
 /**
@@ -46,8 +52,27 @@ export function getTitles({
     delete items[KEY_THEME];
     delete items[KEY_DEFAULT_TAB_OPTION];
     for (const titleKey of Object.keys(items)) {
-      const title = items[titleKey] as StoredTitle;
-      const newTitle = decodeTitleMatcher(titleKey, title.newTitle);
+      const newTitle = items[titleKey] as StoredTitle;
+      switch (newTitle?.option) {
+        case 'tablock':
+          onTablockChange?.(newTitle);
+          break;
+        case 'exact':
+          onExactChange?.(newTitle);
+          break;
+        case 'domain':
+          onDomainChange?.(newTitle);
+          break;
+        case 'regex':
+          onRegexChange?.(newTitle);
+          break;
+      }
+    }
+  });
+  chrome.storage.local.get(function (items: GeneralStorageType) {
+    delete items[KEY_THEME];
+    for (const titleKey of Object.keys(items)) {
+      const newTitle = items[titleKey] as StoredTitle;
       switch (newTitle?.option) {
         case 'tablock':
           onTablockChange?.(newTitle);
@@ -105,6 +130,15 @@ export function getTitle(key: string, callback: (item: any | null) => void) {
     callback(items[key] || null);
   });
 }
+// Get value for a given title matcher key from local storage
+export function getLocalTitle(
+  key: string,
+  callback: (item: any | null) => void
+) {
+  chrome.storage.local.get(key, function (items: GeneralStorageType) {
+    callback(items[key] || null);
+  });
+}
 
 // Set theme option
 export function setTheme(theme: ThemeState, callback?: () => void) {
@@ -121,33 +155,22 @@ export function setTitle(key: string, value: any, callback?: () => void) {
   chrome.storage.sync.set({ [key]: value }, callback);
 }
 
+// Set title matcher in local storage
+export function setLocalTitle(key: string, value: any, callback?: () => void) {
+  chrome.storage.local.set({ [key]: value }, callback);
+}
+
 // Remove one or more key(s)
 export function removeKeys(keys: string | string[], callback?: () => void) {
   chrome.storage.sync.remove(keys, callback);
 }
 
-export function decodeTitleMatcher(
-  key: string,
-  newTitle: string
-): TabLockTitle | ExactTitle | DomainTitle | RegexTitle | null {
-  if (key.startsWith(PREFIX_TABLOCK)) {
-    const tabId = parseInt(key.replace(PREFIX_TABLOCK, ''));
-    return { option: 'tablock', tabId, newTitle };
-  } else if (key.startsWith(PREFIX_EXACT)) {
-    const url = key.replace(PREFIX_EXACT, '');
-    return { option: 'exact', url, newTitle };
-  } else if (key.startsWith(PREFIX_DOMAIN)) {
-    const domain = key.replace(PREFIX_DOMAIN, '');
-    return { option: 'domain', domain, newTitle };
-  } else if (key.startsWith(PREFIX_REGEX)) {
-    try {
-      const regex = new RegExp(key.replace(PREFIX_REGEX, ''));
-      return { option: 'regex', regex, newTitle };
-    } catch (e) {
-      console.error(e);
-    }
-  }
-  return null;
+// Remove one or more key(s)
+export function removeLocalKeys(
+  keys: string | string[],
+  callback?: () => void
+) {
+  chrome.storage.local.remove(keys, callback);
 }
 
 // export default class StorageHandler {
@@ -270,50 +293,73 @@ export const storageChangeHandler = ({
   delete changes[KEY_DEFAULT_TAB_OPTION];
 
   for (const changeKey of Object.keys(changes)) {
-    const newValue: StoredTitle = changes[changeKey].newValue;
-    const newTitle = decodeTitleMatcher(changeKey, newValue.newTitle);
-    console.log(newTitle);
-    switch (newTitle?.option) {
-      case 'tablock':
-        onTablockChange?.(newTitle);
-        break;
-      case 'exact':
-        onExactChange?.(newTitle);
-        break;
-      case 'domain':
-        onDomainChange?.(newTitle);
-        break;
-      case 'regex':
-        onRegexChange?.(newTitle);
-        break;
+    const newValue: StoredTitle | undefined = changes[changeKey].newValue;
+    if (newValue) {
+      switch (newValue?.option) {
+        case 'tablock':
+          onTablockChange?.(newValue);
+          break;
+        case 'exact':
+          onExactChange?.(newValue);
+          break;
+        case 'domain':
+          onDomainChange?.(newValue);
+          break;
+        case 'regex':
+          onRegexChange?.(newValue);
+          break;
+      }
+    } else {
+      const oldValue: StoredTitle = changes[changeKey].oldValue;
+      switch (oldValue.option) {
+        case 'tablock':
+          onTablockChange?.({ ...oldValue, newTitle: null });
+          break;
+        case 'exact':
+          onExactChange?.({ ...oldValue, newTitle: null });
+          break;
+        case 'domain':
+          onDomainChange?.({ ...oldValue, newTitle: null });
+          break;
+        case 'regex':
+          onRegexChange?.({ ...oldValue, newTitle: null });
+          break;
+      }
     }
   }
 };
 
 export function saveTitle(
-  newTitle: string,
-  option: TabOption,
+  newTitle: NewTitle,
+  tabOption: TabOption,
   currentTab: chrome.tabs.Tab,
-  regex?: RegExp
+  extraOptions?: any
 ) {
-  const obj: { [key: string]: StoredTitle } = {};
   const url = currentTab.url;
-  switch (option) {
+  switch (tabOption) {
     case 'tablock': {
-      obj[`${PREFIX_TABLOCK}${currentTab.id}`] = { newTitle };
+      setLocalTitle(
+        `${PREFIX_TABLOCK}${currentTab.id}`,
+        { newTitle },
+        window.close
+      );
       break;
     }
     case 'exact': {
-      obj[`${PREFIX_EXACT}${url}`] = { newTitle };
+      setTitle(`${PREFIX_EXACT}${url}`, { newTitle }, window.close);
       break;
     }
     case 'domain': {
       const urlDomain = extractDomain(url);
-      obj[`${PREFIX_DOMAIN}${urlDomain}`] = { newTitle };
+      setTitle(`${PREFIX_DOMAIN}${urlDomain}`, { newTitle }, window.close);
       break;
     }
     case 'regex': {
-      obj[`${PREFIX_REGEX}${regex}`] = { newTitle };
+      setTitle(
+        `${PREFIX_REGEX}${extraOptions.urlPattern}`,
+        { newTitle },
+        window.close
+      );
       break;
     }
     default:
@@ -321,5 +367,4 @@ export function saveTitle(
       window.close();
       return;
   }
-  chrome.storage.sync.set(obj, window.close);
 }

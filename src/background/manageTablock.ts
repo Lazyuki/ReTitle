@@ -1,4 +1,7 @@
+import { PREFIX_TABLOCK } from '../shared/utils';
+
 interface TablockCache {
+  tabId: number;
   windowId: number;
   index: number;
   title: string;
@@ -11,6 +14,7 @@ interface TablockCaches {
 // Map tab position to IDs so that Tablock persists through sessions.
 const tablockCaches: TablockCaches = {};
 const previousTablockCaches: TablockCache[] = [];
+let previousCrashed = false;
 
 const debounce = <T extends any[]>(func: (...args: T) => any, wait = 250) => {
   let timer: any;
@@ -29,6 +33,7 @@ function _recalculateTabPositionToId(windowId: number) {
       if (tabIds.includes(tabId)) {
         const prev = tablockCaches[tabId];
         tablockCaches[tabId] = {
+          tabId,
           windowId,
           index,
           url,
@@ -48,19 +53,6 @@ const recalculateTabPositionToId = debounce(
   200
 );
 
-// Get tablock caches when extension startsup
-chrome.runtime.onStartup.addListener(function () {
-  // tablock caches are stored locally
-  chrome.storage.local.get(function (items) {
-    const tlc = items['tablockCaches'];
-    Object.keys(tlc).forEach((tabId) => {
-      previousTablockCaches.push({
-        ...tlc[tabId],
-      });
-    });
-  });
-});
-
 // Restore stored tablocks if possible
 chrome.windows.onCreated.addListener(function (window) {
   if (window.type !== 'normal') return;
@@ -70,10 +62,12 @@ chrome.windows.onCreated.addListener(function (window) {
       (t) => t.url === tab.url && t.index === tab.index
     );
     if (!matchedTab) return;
-    tablockCaches[tab.id] = {
+    const obj = {
       ...matchedTab,
       windowId: window.id,
     };
+    chrome.storage.sync.set({ [`${PREFIX_TABLOCK}${tab.id}`]: obj });
+    tablockCaches[tab.id] = obj;
   });
 });
 
@@ -86,7 +80,7 @@ chrome.tabs.onRemoved.addListener(function (tabId, info) {
   // Do not delete Tablock info when the window is closing.
   if (!info.isWindowClosing) {
     recalculateTabPositionToId(info.windowId);
-    chrome.storage.sync.remove(`Tab#${tabId}`);
+    chrome.storage.sync.remove(`${PREFIX_TABLOCK}${tabId}`);
   }
 });
 
@@ -111,10 +105,45 @@ chrome.tabs.onAttached.addListener(function (tabId, info) {
 chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
   if (tabId in tablockCaches) {
     tablockCaches[tabId] = {
+      tabId,
       windowId: tab.windowId,
       index: tab.index,
       title: tab.title || '',
       url: tab.url,
     };
   }
+});
+
+// Get tablock caches when extension startsup
+chrome.runtime.onStartup.addListener(function () {
+  // tablock caches are stored locally
+  chrome.storage.local.get(function (items) {
+    const hasCrashed: true | undefined = items['crash'];
+    const tlc = items['tablockCaches'];
+    Object.keys(tlc).forEach((tabId) => {
+      previousTablockCaches.push({
+        ...tlc[tabId],
+      });
+    });
+    previousCrashed = hasCrashed || false;
+    chrome.storage.local.set({ crash: true });
+  });
+  chrome.storage.sync.get(function (items) {
+    // Clean up residual Tablock keys stored in storage, since we fill those up through cache
+    Object.keys(items).forEach((itemKey) => {
+      if (itemKey.startsWith(PREFIX_TABLOCK)) {
+        chrome.storage.sync.remove(itemKey);
+      }
+    });
+  });
+});
+
+// Indicate that all states are saved successfully
+chrome.runtime.onSuspend.addListener(function () {
+  chrome.storage.local.remove('crash');
+});
+
+// Flag that won't be cleaned if crashed
+chrome.runtime.onSuspendCanceled.addListener(function () {
+  chrome.storage.local.set({ crash: true });
 });

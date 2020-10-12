@@ -15,7 +15,7 @@ import {
   DomainTitle,
   RegexTitle,
 } from '../shared/types';
-import { storageChangeHandler, getTitles } from '../shared/StorageHandler';
+import { storageChangeHandler, getTitles } from '../shared/storageHandler';
 
 const noop = () => {};
 
@@ -75,8 +75,8 @@ const SavedTitles = () => {
       <ul class="description">
         <li>
           Use <code>$0</code> to insert the original title. So if you want
-          <code>Title</code> to say <code>Good Title</code>, set the title name
-          to <code>Good $0</code>.
+          <code>Title</code> to say <code>My Title</code>, set the title name to{' '}
+          <code>My $0</code>.
         </li>
       </ul>
       <h4>Tabs</h4>
@@ -90,6 +90,9 @@ const SavedTitles = () => {
               <ListItemIcon>
                 <EditIcon />
               </ListItemIcon>
+              <ListItemIcon>
+                <DeleteIcon />
+              </ListItemIcon>
             </ListItem>
           );
         })}
@@ -102,6 +105,9 @@ const SavedTitles = () => {
               <ListItemText primary={`URL: ${t.url} | Title: ${t.newTitle}`} />
               <ListItemIcon>
                 <EditIcon />
+              </ListItemIcon>
+              <ListItemIcon>
+                <DeleteIcon />
               </ListItemIcon>
             </ListItem>
           );
@@ -118,6 +124,9 @@ const SavedTitles = () => {
               <ListItemIcon>
                 <EditIcon />
               </ListItemIcon>
+              <ListItemIcon>
+                <DeleteIcon />
+              </ListItemIcon>
             </ListItem>
           );
         })}
@@ -128,10 +137,13 @@ const SavedTitles = () => {
           return (
             <ListItem button>
               <ListItemText
-                primary={`Regex: ${t.regex} | Title: ${t.newTitle}`}
+                primary={`Regex: ${t.urlPattern} | Title: ${t.newTitle}`}
               />
               <ListItemIcon>
                 <EditIcon />
+              </ListItemIcon>
+              <ListItemIcon>
+                <DeleteIcon />
               </ListItemIcon>
             </ListItem>
           );
