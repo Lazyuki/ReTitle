@@ -66,7 +66,7 @@ chrome.windows.onCreated.addListener(function (window) {
       ...matchedTab,
       windowId: window.id,
     };
-    chrome.storage.sync.set({ [`${PREFIX_TABLOCK}${tab.id}`]: obj });
+    chrome.storage.local.set({ [`${PREFIX_TABLOCK}${tab.id}`]: obj });
     tablockCaches[tab.id] = obj;
   });
 });
@@ -80,7 +80,7 @@ chrome.tabs.onRemoved.addListener(function (tabId, info) {
   // Do not delete Tablock info when the window is closing.
   if (!info.isWindowClosing) {
     recalculateTabPositionToId(info.windowId);
-    chrome.storage.sync.remove(`${PREFIX_TABLOCK}${tabId}`);
+    chrome.storage.local.remove(`${PREFIX_TABLOCK}${tabId}`);
   }
 });
 

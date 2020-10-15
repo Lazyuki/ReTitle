@@ -20,6 +20,11 @@ const StyleFix = {
       },
     },
   },
+  props: {
+    MuiButtonBase: {
+      disableRipple: true,
+    },
+  },
 };
 
 const lightTheme = createMuiTheme({
@@ -39,10 +44,10 @@ const darkTheme = createMuiTheme({
   palette: {
     type: 'dark',
     primary: {
-      main: '#9ab0e6',
+      main: '#47bfff',
     },
     secondary: {
-      main: '#ec4fc4',
+      main: '#ffaf47',
     },
   },
   ...StyleFix,
@@ -64,22 +69,28 @@ const globalStyles = makeStyles({
 });
 
 const ReTitleThemeWrapper: FC = ({ children }) => {
-  const [theme, setTheme] = useState<ThemeState>('dark');
+  const [theme, setTheme] = useState<ThemeState>(
+    // Using localStorage as cache since it is way faster than using the storage API
+    (localStorage.getItem('theme') as ThemeState) || 'dark'
+  );
   globalStyles();
 
   useEffect(() => {
     chrome.storage.sync.get(KEY_THEME, (items) => {
-      if (items[KEY_THEME]) {
-        setTheme(items[KEY_THEME]);
+      const storedTheme = items[KEY_THEME];
+      if (storedTheme) {
+        setTheme(storedTheme);
+        localStorage.setItem('theme', storedTheme);
       }
     });
   }, []);
 
   const storageChangeHandler = useCallback((changes: StorageChanges) => {
     if (changes[KEY_THEME]) {
-      const change = changes[KEY_THEME];
-      if (change.newValue) {
-        setTheme(change.newValue);
+      const newTheme = changes[KEY_THEME].newValue;
+      if (newTheme) {
+        setTheme(newTheme);
+        localStorage.setItem('theme', newTheme);
       }
     }
   }, []);

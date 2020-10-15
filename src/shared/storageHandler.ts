@@ -18,20 +18,26 @@ import type {
   StoredTitle,
   NewTitle,
 } from './types';
+import {
+  getAllSyncItems,
+  getAllLocalItems,
+  getLocalItems,
+  getLocalItem,
+  setLocalItem,
+  setSyncItem,
+} from './storageUtils';
 
-type GeneralStorageType = { [key: string]: unknown };
-
-/**
- * This gets all items in storage. Use `getTitles` instead for
- * getting all title matchers
- */
-export function getAllItems(callback: (items: GeneralStorageType) => void) {
-  chrome.storage.sync.get(callback);
-}
-export function getAllLocalItems(
-  callback: (items: GeneralStorageType) => void
-) {
-  chrome.storage.local.get(callback);
+export function getKey(title: StoredTitle) {
+  switch (title.option) {
+    case 'tablock':
+      return `${PREFIX_TABLOCK}${title.tabId}`;
+    case 'exact':
+      return `${PREFIX_EXACT}${title.url}`;
+    case 'domain':
+      return `${PREFIX_DOMAIN}${title.domain}`;
+    case 'regex':
+      return `${PREFIX_REGEX}${title.urlPattern}`;
+  }
 }
 
 /**
@@ -48,8 +54,7 @@ export function getTitles({
   onDomainChange?: (domain: DomainTitle) => void;
   onRegexChange?: (regex: RegexTitle) => void;
 }) {
-  chrome.storage.sync.get(function (items: GeneralStorageType) {
-    delete items[KEY_THEME];
+  getAllSyncItems((items) => {
     delete items[KEY_DEFAULT_TAB_OPTION];
     for (const titleKey of Object.keys(items)) {
       const newTitle = items[titleKey] as StoredTitle;
@@ -69,7 +74,7 @@ export function getTitles({
       }
     }
   });
-  chrome.storage.local.get(function (items: GeneralStorageType) {
+  getAllLocalItems((items) => {
     delete items[KEY_THEME];
     for (const titleKey of Object.keys(items)) {
       const newTitle = items[titleKey] as StoredTitle;
@@ -98,9 +103,7 @@ export function getOptions(
     [KEY_DEFAULT_TAB_OPTION]: TabOption;
   }) => void
 ) {
-  chrome.storage.sync.get([KEY_THEME, KEY_DEFAULT_TAB_OPTION], function (
-    items: GeneralStorageType
-  ) {
+  getLocalItems([KEY_THEME, KEY_DEFAULT_TAB_OPTION], (items) => {
     const theme = (items[KEY_THEME] as ThemeState) || 'dark';
     const defaultOption =
       (items[KEY_DEFAULT_TAB_OPTION] as TabOption) || 'onetime';
@@ -110,67 +113,44 @@ export function getOptions(
 
 // Get theme option
 export function getTheme(callback: (theme: ThemeState) => void) {
-  chrome.storage.sync.get(KEY_THEME, function (items: GeneralStorageType) {
-    callback((items[KEY_THEME] as ThemeState) || 'dark');
+  getLocalItem(KEY_THEME, (item: ThemeState | null) => {
+    callback(item || 'dark');
   });
 }
 
 // Get default tab option
 export function getDefaultOption(callback: (defaultOption: TabOption) => void) {
-  chrome.storage.sync.get(KEY_DEFAULT_TAB_OPTION, function (
-    items: GeneralStorageType
-  ) {
-    callback((items[KEY_DEFAULT_TAB_OPTION] as TabOption) || 'onetime');
-  });
-}
-
-// Get value for a given title matcher key
-export function getTitle(key: string, callback: (item: any | null) => void) {
-  chrome.storage.sync.get(key, function (items: GeneralStorageType) {
-    callback(items[key] || null);
-  });
-}
-// Get value for a given title matcher key from local storage
-export function getLocalTitle(
-  key: string,
-  callback: (item: any | null) => void
-) {
-  chrome.storage.local.get(key, function (items: GeneralStorageType) {
-    callback(items[key] || null);
+  getLocalItem(KEY_DEFAULT_TAB_OPTION, (item: TabOption | null) => {
+    callback(item || 'onetime');
   });
 }
 
 // Set theme option
 export function setTheme(theme: ThemeState, callback?: () => void) {
-  chrome.storage.sync.set({ [KEY_THEME]: theme }, callback);
+  setLocalItem(KEY_THEME, theme, callback);
 }
 
 // Set default tab option
 export function setDefaultOption(option: TabOption, callback?: () => void) {
-  chrome.storage.sync.set({ [KEY_DEFAULT_TAB_OPTION]: option }, callback);
+  setLocalItem(KEY_DEFAULT_TAB_OPTION, option, callback);
 }
 
 // Set title matcher
-export function setTitle(key: string, value: any, callback?: () => void) {
-  chrome.storage.sync.set({ [key]: value }, callback);
+export function setSyncTitle(
+  key: string,
+  value: StoredTitle,
+  callback?: () => void
+) {
+  setSyncItem(key, value, callback);
 }
 
 // Set title matcher in local storage
-export function setLocalTitle(key: string, value: any, callback?: () => void) {
-  chrome.storage.local.set({ [key]: value }, callback);
-}
-
-// Remove one or more key(s)
-export function removeKeys(keys: string | string[], callback?: () => void) {
-  chrome.storage.sync.remove(keys, callback);
-}
-
-// Remove one or more key(s)
-export function removeLocalKeys(
-  keys: string | string[],
+export function setLocalTitle(
+  key: string,
+  value: StoredTitle,
   callback?: () => void
 ) {
-  chrome.storage.local.remove(keys, callback);
+  setLocalItem(key, value, callback);
 }
 
 // export default class StorageHandler {
@@ -340,24 +320,38 @@ export function saveTitle(
     case 'tablock': {
       setLocalTitle(
         `${PREFIX_TABLOCK}${currentTab.id}`,
-        { newTitle },
+        { tabId: currentTab.id!, newTitle, option: tabOption },
         window.close
       );
       break;
     }
     case 'exact': {
-      setTitle(`${PREFIX_EXACT}${url}`, { newTitle }, window.close);
+      setSyncTitle(
+        `${PREFIX_EXACT}${url}`,
+        { url: url!, newTitle, option: tabOption },
+        window.close
+      );
       break;
     }
     case 'domain': {
       const urlDomain = extractDomain(url);
-      setTitle(`${PREFIX_DOMAIN}${urlDomain}`, { newTitle }, window.close);
+      setSyncTitle(
+        `${PREFIX_DOMAIN}${urlDomain}`,
+        { domain: urlDomain, newTitle, option: tabOption },
+        window.close
+      );
       break;
     }
     case 'regex': {
-      setTitle(
+      setSyncTitle(
         `${PREFIX_REGEX}${extraOptions.urlPattern}`,
-        { newTitle },
+        {
+          urlPattern: extraOptions.urlPattern,
+          newTitle,
+          type: extraOptions.type,
+          captureRegex: extraOptions.captureRegex,
+          option: tabOption,
+        },
         window.close
       );
       break;

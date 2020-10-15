@@ -37,14 +37,14 @@ function executeNext() {
 }
 
 // Update the tab title
-function insertTitle(tabId: number, newTitle: string) {
+function insertTitle(tabId: number, newTitle: string, option: TabOption) {
   function execute() {
     wait = true;
     cache.push(newTitle);
     //if (recursionStopper.shouldStop(tabId)) return;
     console.log('Changing the title to ' + newTitle);
     const escapedTitle = newTitle.replace(/'/g, "\\'");
-    const code = `${setTitle.toString()}; setTitle('${escapedTitle}');`;
+    const code = `${setTitle.toString()}; setTitle('${escapedTitle}', '${option}');`;
     chrome.tabs.executeScript(
       tabId,
       {
@@ -148,21 +148,34 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
       cache.splice(index, 1);
       return; // I'm the one who changed the title to this
     }
+    console.log(infoTitle);
     for (const tabTitle of tablocks) {
       if (tabTitle.tabId === tabId) {
-        insertTitle(tabId, decodeTitle(infoTitle, tabTitle.newTitle!));
+        insertTitle(
+          tabId,
+          decodeTitle(infoTitle, tabTitle.newTitle!),
+          tabTitle.option
+        );
         return;
       }
     }
     for (const exactTitle of exacts) {
       if (compareURLs(url, exactTitle.url, exactTitle.ignoreParams)) {
-        insertTitle(tabId, decodeTitle(infoTitle, exactTitle.newTitle!));
+        insertTitle(
+          tabId,
+          decodeTitle(infoTitle, exactTitle.newTitle!),
+          exactTitle.option
+        );
         return;
       }
     }
     for (const domainTitle of domains) {
       if (compareDomains(url, domainTitle.domain, domainTitle.useFull)) {
-        insertTitle(tabId, decodeTitle(infoTitle, domainTitle.newTitle!));
+        insertTitle(
+          tabId,
+          decodeTitle(infoTitle, domainTitle.newTitle!),
+          domainTitle.option
+        );
         return;
       }
     }
@@ -173,7 +186,8 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
         if (urlPattern.test(url)) {
           insertTitle(
             tabId,
-            decodeTitle(infoTitle, regexTitle.newTitle!, url, urlPattern)
+            decodeTitle(infoTitle, regexTitle.newTitle!, url, urlPattern),
+            regexTitle.option
           );
         }
       } catch (e) {
@@ -249,5 +263,9 @@ chrome.contextMenus.onClicked.addListener(function (info, tab) {
 
 // Receives rename message from popup.js
 chrome.runtime.onMessage.addListener(function (request: MessageRequest) {
-  insertTitle(request.id, decodeTitle(request.oldTitle, request.newTitle));
+  insertTitle(
+    request.id,
+    decodeTitle(request.oldTitle, request.newTitle),
+    request.option
+  );
 });

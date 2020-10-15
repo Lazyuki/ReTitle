@@ -2,7 +2,7 @@ import { h, JSX, FunctionComponent as FC } from 'preact';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
     appearance: 'none',
     background: 'none',
@@ -11,9 +11,9 @@ const useStyles = makeStyles({
     '&:hover': {
       outline: 'none',
     },
-    color: 'white',
+    color: theme.palette.text.primary,
   },
-});
+}));
 
 const AccessibleButton: FC<JSX.HTMLAttributes<HTMLButtonElement>> = ({
   className,

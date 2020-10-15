@@ -4,11 +4,17 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
+import Switch from '@material-ui/core/Switch';
 import { makeStyles } from '@material-ui/core/styles';
 
 import KeyboardShortcutSettings from './KeyboardShortcutSettings';
 import { TabOption } from '../shared/types';
-import { getDefaultOption, setDefaultOption } from '../shared/storageHandler';
+import {
+  getDefaultOption,
+  setDefaultOption,
+  setTheme,
+  getTheme,
+} from '../shared/storageHandler';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -48,9 +54,13 @@ const useStyles = makeStyles((theme) => ({
 const UserSettings = () => {
   const styles = useStyles();
   const [option, setOption] = useState<TabOption>('onetime');
+  const [isDark, setIsDark] = useState(
+    localStorage.getItem('theme') !== 'light'
+  );
 
   useEffect(() => {
     getDefaultOption(setOption);
+    getTheme((theme) => setIsDark(theme === 'dark'));
   }, []);
 
   const handleOptionChange = useCallback((e: any) => {
@@ -59,11 +69,16 @@ const UserSettings = () => {
     setDefaultOption(newOption);
   }, []);
 
+  const toggleTheme = () => {
+    setTheme(isDark ? 'light' : 'dark');
+    setIsDark(!isDark);
+  };
+
   return (
     <div>
       <div>
         {/* Popup flickers when using light theme, so stick to dark theme until I figure out a workaround */}
-        {/* <FormControlLabel
+        <FormControlLabel
           control={
             <Switch
               checked={isDark}
@@ -71,9 +86,9 @@ const UserSettings = () => {
               name="isDarkTheme"
             />
           }
-          labelPlacement="start" 
-          label="Dark Theme:"
-        /> */}
+          labelPlacement="start"
+          label={<label className={styles.label}>Dark Theme:</label>}
+        />
         <div>
           <label className={styles.label}>Keyboard Shortcut:</label>
           <KeyboardShortcutSettings />

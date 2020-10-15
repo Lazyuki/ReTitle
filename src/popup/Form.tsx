@@ -19,7 +19,7 @@ import RegexInputGroup from '../shared/RegexInputGroup';
 
 const useStyles = makeStyles({
   root: {
-    width: '400px',
+    width: '450px',
     padding: '20px',
     overflow: 'hidden',
   },
@@ -67,7 +67,7 @@ const Form = () => {
         tab.id,
         {
           code: `${getCurrentOption.toString()}; getCurrentOption();`,
-          runAt: 'document-end',
+          runAt: 'document_end',
         },
         (results) => {
           const result = results[0];
@@ -119,6 +119,7 @@ const Form = () => {
         id: tab.id,
         oldTitle: tab.title,
         newTitle: inputValue,
+        option,
       });
       saveTitle(inputValue, option, tab);
     }
@@ -151,7 +152,8 @@ const Form = () => {
         />
       ) : (
         <TextField
-          multiline
+          multiline={true}
+          spellCheck={false}
           className={styles.input}
           inputRef={inputRef}
           label="New Title"
@@ -201,7 +203,7 @@ const Form = () => {
       </FormControl>
       <Button
         className={styles.button}
-        variant="contained"
+        variant="outlined"
         color="primary"
         onClick={setTitle}
       >

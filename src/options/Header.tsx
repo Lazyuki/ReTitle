@@ -8,6 +8,8 @@ import Container from '@material-ui/core/Container';
 const useStyles = makeStyles((theme) => ({
   root: {
     position: 'relative',
+    background: 'black',
+    color: 'white',
   },
   title: {
     margin: '10px 0',
