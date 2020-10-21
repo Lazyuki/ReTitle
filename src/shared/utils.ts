@@ -1,6 +1,8 @@
 // Unique storage keys for options
 export const KEY_DEFAULT_TAB_OPTION = 'OptDefault';
 export const KEY_THEME = 'OptTheme';
+export const KEY_CONTEXT_MENU = 'OptContextMenu';
+export const KEY_BOOKMARKS = 'OptBookmarks';
 
 // Title matcher prefixes
 export const PREFIX_CONTAINER = 'Gr:'; // Comes before other prefixes. Gr:google|Exact:http://example.com
@@ -34,4 +36,11 @@ export function extractDomain(url?: string) {
     }
   }
   return '';
+}
+
+export function createContextMenu() {
+  chrome.contextMenus.create({
+    id: 'ctxmnu',
+    title: 'Set a temporary title',
+  });
 }

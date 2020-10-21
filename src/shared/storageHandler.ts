@@ -1,6 +1,8 @@
 import {
   KEY_THEME,
   KEY_DEFAULT_TAB_OPTION,
+  KEY_CONTEXT_MENU,
+  KEY_BOOKMARKS,
   PREFIX_TABLOCK,
   PREFIX_EXACT,
   PREFIX_DOMAIN,
@@ -80,12 +82,15 @@ export function getOptions(
     [KEY_DEFAULT_TAB_OPTION]: TabOption;
   }) => void
 ) {
-  getLocalItems([KEY_THEME, KEY_DEFAULT_TAB_OPTION], (items) => {
-    const theme = (items[KEY_THEME] as ThemeState) || 'dark';
-    const defaultOption =
-      (items[KEY_DEFAULT_TAB_OPTION] as TabOption) || 'onetime';
-    callback({ [KEY_THEME]: theme, [KEY_DEFAULT_TAB_OPTION]: defaultOption });
-  });
+  getLocalItems(
+    [KEY_THEME, KEY_DEFAULT_TAB_OPTION, KEY_CONTEXT_MENU],
+    (items) => {
+      const theme = (items[KEY_THEME] as ThemeState) || 'dark';
+      const defaultOption =
+        (items[KEY_DEFAULT_TAB_OPTION] as TabOption) || 'onetime';
+      callback({ [KEY_THEME]: theme, [KEY_DEFAULT_TAB_OPTION]: defaultOption });
+    }
+  );
 }
 
 // Get theme option
@@ -102,6 +107,13 @@ export function getDefaultOption(callback: (defaultOption: TabOption) => void) {
   });
 }
 
+// Get context menu option
+export function getContextMenuOption(callback: (contextMene: boolean) => void) {
+  getLocalItem(KEY_CONTEXT_MENU, (item: boolean | null) => {
+    callback(Boolean(item));
+  });
+}
+
 // Set theme option
 export function setTheme(theme: ThemeState, callback?: () => void) {
   setLocalItem(KEY_THEME, theme, callback);
@@ -110,6 +122,11 @@ export function setTheme(theme: ThemeState, callback?: () => void) {
 // Set default tab option
 export function setDefaultOption(option: TabOption, callback?: () => void) {
   setLocalItem(KEY_DEFAULT_TAB_OPTION, option, callback);
+}
+
+// Set context menu option
+export function setContextMenuOption(option: boolean, callback?: () => void) {
+  setLocalItem(KEY_CONTEXT_MENU, option, callback);
 }
 
 // Set title matcher

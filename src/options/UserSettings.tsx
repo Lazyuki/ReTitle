@@ -7,6 +7,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Switch from '@material-ui/core/Switch';
 import { makeStyles } from '@material-ui/core/styles';
 
+import ContextMenuSwitch from './ContextMenuSwitch';
 import KeyboardShortcutSettings from './KeyboardShortcutSettings';
 import { TabOption } from '../shared/types';
 import {
@@ -92,6 +93,10 @@ const UserSettings = () => {
         <div>
           <label className={styles.label}>Keyboard Shortcut:</label>
           <KeyboardShortcutSettings />
+        </div>
+        <div>
+          <label className={styles.label}>Add ReTitle to context menu</label>
+          <ContextMenuSwitch />
         </div>
       </div>
       <label className={styles.label}>Default Option:</label>

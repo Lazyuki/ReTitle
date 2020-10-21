@@ -8,6 +8,7 @@ import {
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { StorageChanges, ThemeState } from './types';
 import { KEY_THEME } from './utils';
+import { getTheme } from './storageHandler';
 
 const StyleFix = {
   overrides: {
@@ -76,8 +77,7 @@ const ReTitleThemeWrapper: FC = ({ children }) => {
   globalStyles();
 
   useEffect(() => {
-    chrome.storage.sync.get(KEY_THEME, (items) => {
-      const storedTheme = items[KEY_THEME];
+    getTheme((storedTheme) => {
       if (storedTheme) {
         setTheme(storedTheme);
         localStorage.setItem('theme', storedTheme);

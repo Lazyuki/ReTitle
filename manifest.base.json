@@ -41,6 +41,7 @@
     "storage",
     "<all_urls>",
     "contextMenus",
-    "bookmarks"
-  ]
+    "contextualIdentities"
+  ],
+  "optional_permissions": ["bookmarks"]
 }
