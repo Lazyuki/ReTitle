@@ -1,6 +1,6 @@
 import { TabOption } from '../shared/types';
 
-export function setTitle(newTitle: string, option: TabOption) {
+export function injectTitle(newTitle: string, option: TabOption) {
   const META_OPTION = 'retitle:option';
   const META_ORIGINAL = 'retitle:original';
   const META_MODIFIED = 'retitle:modified';

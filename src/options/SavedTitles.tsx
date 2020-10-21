@@ -1,5 +1,11 @@
 import { h } from 'preact';
-import { useState, useEffect, useCallback, useMemo } from 'preact/compat';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  StateUpdater,
+} from 'preact/compat';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -14,6 +20,8 @@ import {
   ExactTitle,
   DomainTitle,
   RegexTitle,
+  StorageAction,
+  StoredTitle,
 } from '../shared/types';
 import { storageChangeHandler, getTitles } from '../shared/storageHandler';
 
@@ -25,6 +33,46 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const editTitleState = <T extends StoredTitle>(
+  predicate: (title: T) => boolean,
+  newTitle: T
+) => (previous: T[]) => {
+  const index = previous.findIndex(predicate);
+  if (index >= 0) {
+    const copy = [...previous];
+    copy[index] = newTitle;
+    return copy;
+  } else {
+    return previous;
+  }
+};
+const removeTitleState = <T extends StoredTitle>(
+  predicate: (title: T) => boolean
+) => (previous: T[]) => {
+  const index = previous.findIndex(predicate);
+  if (index >= 0) {
+    const copy = [...previous].splice(index, 1);
+    return copy;
+  } else {
+    return previous;
+  }
+};
+
+const generateCallback = <T extends StoredTitle>(
+  stateUpdater: StateUpdater<T[]>,
+  predicate: (t1: T, t2: T) => boolean
+) => (action: StorageAction, newTitle: T) => {
+  switch (action) {
+    case 'add':
+      stateUpdater((p) => [...p, newTitle]);
+      break;
+    case 'remove':
+      stateUpdater(removeTitleState((t) => predicate(t, newTitle)));
+    case 'edit':
+      stateUpdater(editTitleState((t) => predicate(t, newTitle), newTitle));
+  }
+};
+
 const SavedTitles = () => {
   const styles = useStyles();
   const [tabLocks, setTablocks] = useState<TabLockTitle[]>([]);
@@ -32,26 +80,25 @@ const SavedTitles = () => {
   const [domains, setDomains] = useState<DomainTitle[]>([]);
   const [regexes, setRegexes] = useState<RegexTitle[]>([]);
 
-  const onTablockChange = useCallback((tablock: TabLockTitle) => {
-    if (tablock.newTitle) {
-      setTablocks((p) => [...p, tablock]);
-    } else {
-      // remove
-      setTablocks((p) => [...p]);
-    }
-  }, []);
+  const onTablockChange = useCallback(
+    generateCallback(setTablocks, (t1, t2) => t1.tabId === t2.tabId),
+    []
+  );
 
-  const onExactChange = useCallback((exact: ExactTitle) => {
-    setExacts((p) => [...p, exact]);
-  }, []);
+  const onExactChange = useCallback(
+    generateCallback(setExacts, (t1, t2) => t1.url === t2.url),
+    []
+  );
 
-  const onDomainChange = useCallback((domain: DomainTitle) => {
-    setDomains((p) => [...p, domain]);
-  }, []);
+  const onDomainChange = useCallback(
+    generateCallback(setDomains, (t1, t2) => t1.domain === t2.domain),
+    []
+  );
 
-  const onRegexChange = useCallback((regex: RegexTitle) => {
-    setRegexes((p) => [...p, regex]);
-  }, []);
+  const onRegexChange = useCallback(
+    generateCallback(setRegexes, (t1, t2) => t1.urlPattern === t2.urlPattern),
+    []
+  );
 
   useEffect(() => {
     const handler = storageChangeHandler({

@@ -1,4 +1,4 @@
-type GeneralStorageType = { [key: string]: unknown };
+export type GeneralStorageType = { [key: string]: unknown };
 
 /**
  * Get all items

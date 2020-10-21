@@ -1,22 +1,35 @@
 export type TabOption = 'onetime' | 'tablock' | 'exact' | 'domain' | 'regex';
 export type ThemeState = 'light' | 'dark';
+export type ReplacerType = 'url' | 'title' | 'function';
 
 export interface StorageChanges {
   [key: string]: chrome.storage.StorageChange;
 }
 
+export type NewTitleFunc = {
+  replacerType: 'function';
+  func: string;
+};
+
 export type NewTitleRegex = {
+  replacerType: 'url' | 'title';
   captureRegex: string;
   titleRegex: string;
   flags: string;
 };
 
-export type NewTitle = string | NewTitleRegex;
+export type NewTitle = string | NewTitleRegex | NewTitleFunc;
 
-export interface BaseTitle {
+// Optional settings for titles
+export interface TitleOptions {
+  name?: string; // Optional human readable name. Default to the storage key
+  disabled?: boolean; // Temporarily Disabled
+  containerId?: string; // Container ID if used
+}
+
+export interface BaseTitle extends TitleOptions {
   option: TabOption;
-  newTitle: NewTitle | null; // empty string is allowed. Use null to delete
-  disabled?: boolean;
+  newTitle: NewTitle; // empty string is allowed. Use null to delete
 }
 
 export interface TabLockTitle extends BaseTitle {
@@ -33,20 +46,19 @@ export interface ExactTitle extends BaseTitle {
 export interface DomainTitle extends BaseTitle {
   option: 'domain';
   domain: string;
-  useFull?: boolean;
+  allowSubdomains?: boolean; // Allow subdomains or not
 }
 
 export interface RegexTitle extends BaseTitle {
   option: 'regex';
-  urlPattern: string; // RegExp pattern to match URLs
-  type: 'url' | 'title' | 'document' | 'function'; // where to perform regex capturing
-  captureRegex: string; // valid RegExp string for captureing
-  regexFlags?: string; // regex flags like i, g
-  querySelector?: string; // only if type=document
-  functionString?: string; // only if type=function
+  urlPattern: string; // RegExp pattern to match URLs. Capturing doesn't matter here
 }
 
+export type CustomFunction = (originalTitle: string, url: string) => string;
+
 export type StoredTitle = TabLockTitle | ExactTitle | DomainTitle | RegexTitle;
+
+export type StorageAction = 'add' | 'remove' | 'edit';
 
 export interface MessageRequest {
   id: number;

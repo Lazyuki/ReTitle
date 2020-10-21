@@ -1,4 +1,10 @@
 import { PREFIX_TABLOCK } from '../shared/utils';
+import {
+  setLocalItems,
+  getAllLocalItems,
+  setLocalItem,
+  removeLocalItems,
+} from '../shared/storageUtils';
 
 interface TablockCache {
   tabId: number;
@@ -42,7 +48,7 @@ function _recalculateTabPositionToId(windowId: number) {
       }
     });
     // use local storage since it should not be synced
-    chrome.storage.local.set({
+    setLocalItems({
       tablockCaches,
     });
   });
@@ -66,7 +72,7 @@ chrome.windows.onCreated.addListener(function (window) {
       ...matchedTab,
       windowId: window.id,
     };
-    chrome.storage.local.set({ [`${PREFIX_TABLOCK}${tab.id}`]: obj });
+    setLocalItem(`${PREFIX_TABLOCK}${tab.id}`, obj);
     tablockCaches[tab.id] = obj;
   });
 });
@@ -80,7 +86,7 @@ chrome.tabs.onRemoved.addListener(function (tabId, info) {
   // Do not delete Tablock info when the window is closing.
   if (!info.isWindowClosing) {
     recalculateTabPositionToId(info.windowId);
-    chrome.storage.local.remove(`${PREFIX_TABLOCK}${tabId}`);
+    removeLocalItems(`${PREFIX_TABLOCK}${tabId}`);
   }
 });
 
@@ -117,22 +123,22 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
 // Get tablock caches when extension startsup
 chrome.runtime.onStartup.addListener(function () {
   // tablock caches are stored locally
-  chrome.storage.local.get(function (items) {
-    const hasCrashed: true | undefined = items['crash'];
-    const tlc = items['tablockCaches'];
+  getAllLocalItems(function (items) {
+    const hasCrashed = items['crash'] as boolean | undefined;
+    const tlc = items['tablockCaches'] as Record<string, TablockCache>;
     Object.keys(tlc).forEach((tabId) => {
       previousTablockCaches.push({
         ...tlc[tabId],
       });
     });
     previousCrashed = hasCrashed || false;
-    chrome.storage.local.set({ crash: true });
+    setLocalItem('crash', true);
   });
-  chrome.storage.sync.get(function (items) {
+  getAllLocalItems(function (items) {
     // Clean up residual Tablock keys stored in storage, since we fill those up through cache
     Object.keys(items).forEach((itemKey) => {
       if (itemKey.startsWith(PREFIX_TABLOCK)) {
-        chrome.storage.sync.remove(itemKey);
+        removeLocalItems(itemKey);
       }
     });
   });
@@ -140,10 +146,10 @@ chrome.runtime.onStartup.addListener(function () {
 
 // Indicate that all states are saved successfully
 chrome.runtime.onSuspend.addListener(function () {
-  chrome.storage.local.remove('crash');
+  removeLocalItems('crash');
 });
 
 // Flag that won't be cleaned if crashed
 chrome.runtime.onSuspendCanceled.addListener(function () {
-  chrome.storage.local.set({ crash: true });
+  setLocalItem('crash', true);
 });

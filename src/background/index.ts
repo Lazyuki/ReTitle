@@ -1,6 +1,6 @@
 import './onInstall';
 import './manageTablock';
-import { setTitle } from './injectedScripts';
+import { injectTitle } from './injectedScripts';
 
 import { storageChangeHandler } from '../shared/storageHandler';
 import {
@@ -11,10 +11,9 @@ import {
   TabOption,
   MessageRequest,
   NewTitle,
+  StorageAction,
+  StoredTitle,
 } from '../shared/types';
-
-const REGEX_DOMAIN = /https?:\/\/([^\s/]+)(?:$|\/.*)/;
-const validRegex = /^\/((?:[^/]|\\\/)+)\/((?:[^/]|\\\/)+)\/(gi?|ig?)?$/;
 
 function escapeRegExp(str: string) {
   return str.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
@@ -44,7 +43,7 @@ function insertTitle(tabId: number, newTitle: string, option: TabOption) {
     //if (recursionStopper.shouldStop(tabId)) return;
     console.log('Changing the title to ' + newTitle);
     const escapedTitle = newTitle.replace(/'/g, "\\'");
-    const code = `${setTitle.toString()}; setTitle('${escapedTitle}', '${option}');`;
+    const code = `${injectTitle.toString()}; injectTitle('${escapedTitle}', '${option}');`;
     chrome.tabs.executeScript(
       tabId,
       {
@@ -83,20 +82,35 @@ function insertTitle(tabId: number, newTitle: string, option: TabOption) {
 // })();
 
 // Returns a title specified by regex
-function decodeTitle(
+async function decodeTitle(
   oldTitle: string,
   newTitle: NewTitle,
+  tabId: number,
   url: string | null = null,
   urlPattern: RegExp | null = null
-) {
+): Promise<string> {
   if (typeof newTitle === 'object') {
-    const pattern = newTitle.captureRegex;
-    const replacement = newTitle.titleRegex;
-    const flags = newTitle.flags;
-    newTitle = oldTitle.replace(new RegExp(pattern, flags), replacement);
-    if (newTitle === oldTitle) {
-      console.log('pattern match error');
+    if (newTitle.replacerType === 'function') {
+      const code = newTitle.func;
+      return new Promise((resolve, reject) => {
+        chrome.tabs.executeScript(
+          tabId,
+          {
+            code,
+            runAt: 'document_end',
+          },
+          (results: string[]) => {
+            resolve(results[0]);
+          }
+        );
+      });
+    } else {
+      const pattern = newTitle.captureRegex;
+      const replacement = newTitle.titleRegex;
+      const flags = newTitle.flags;
+      newTitle = oldTitle.replace(new RegExp(pattern, flags), replacement);
     }
+    return '';
   } else if (newTitle.includes('$0')) {
     // // Make sure it doesn't use the cached old title and as an original title.
     // const newTitleRegex = new RegExp(
@@ -145,103 +159,107 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
     let url = tab.url || '';
     let index = cache.indexOf(infoTitle);
     if (index > -1) {
+      // TODO: detect titles with $0
       cache.splice(index, 1);
       return; // I'm the one who changed the title to this
     }
     console.log(infoTitle);
-    for (const tabTitle of tablocks) {
-      if (tabTitle.tabId === tabId) {
-        insertTitle(
-          tabId,
-          decodeTitle(infoTitle, tabTitle.newTitle!),
-          tabTitle.option
-        );
-        return;
-      }
-    }
-    for (const exactTitle of exacts) {
-      if (compareURLs(url, exactTitle.url, exactTitle.ignoreParams)) {
-        insertTitle(
-          tabId,
-          decodeTitle(infoTitle, exactTitle.newTitle!),
-          exactTitle.option
-        );
-        return;
-      }
-    }
-    for (const domainTitle of domains) {
-      if (compareDomains(url, domainTitle.domain, domainTitle.useFull)) {
-        insertTitle(
-          tabId,
-          decodeTitle(infoTitle, domainTitle.newTitle!),
-          domainTitle.option
-        );
-        return;
-      }
-    }
-    for (const regexTitle of regexes) {
-      const pattern = regexTitle.urlPattern;
-      try {
-        const urlPattern = new RegExp(pattern);
-        if (urlPattern.test(url)) {
+    if (!infoTitle) return;
+    (async () => {
+      for (const tabTitle of tablocks) {
+        if (tabTitle.tabId === tabId) {
           insertTitle(
             tabId,
-            decodeTitle(infoTitle, regexTitle.newTitle!, url, urlPattern),
-            regexTitle.option
+            await decodeTitle(infoTitle, tabTitle.newTitle!, tabId),
+            tabTitle.option
           );
+          return;
         }
-      } catch (e) {
-        console.log(e);
       }
-    }
+      for (const exactTitle of exacts) {
+        if (compareURLs(url, exactTitle.url, exactTitle.ignoreParams)) {
+          insertTitle(
+            tabId,
+            await decodeTitle(infoTitle, exactTitle.newTitle!, tabId),
+            exactTitle.option
+          );
+          return;
+        }
+      }
+      for (const domainTitle of domains) {
+        if (compareDomains(url, domainTitle.domain, true)) {
+          insertTitle(
+            tabId,
+            await decodeTitle(infoTitle, domainTitle.newTitle!, tabId),
+            domainTitle.option
+          );
+          return;
+        }
+      }
+      for (const regexTitle of regexes) {
+        const pattern = regexTitle.urlPattern;
+        try {
+          const urlPattern = new RegExp(pattern);
+          if (urlPattern.test(url)) {
+            insertTitle(
+              tabId,
+              await decodeTitle(
+                infoTitle,
+                regexTitle.newTitle!,
+                tabId,
+                url,
+                urlPattern
+              ),
+              regexTitle.option
+            );
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    })();
   }
 });
 
-const onTablockChange = (tablock: TabLockTitle) => {
-  if (tablock.newTitle !== null) {
-    tablocks.push(tablock);
-  } else {
-    // remove
-    const index = tablocks.findIndex((t) => t.tabId === tablock.tabId);
-    if (index >= 0) {
-      tablocks.splice(index, 1);
+const generateActionHandler = <T extends StoredTitle>(
+  state: T[],
+  equals: (t1: T, t2: T) => boolean
+) => (action: StorageAction, newTitle: T) => {
+  switch (action) {
+    case 'add':
+      state.push(newTitle);
+      break;
+    case 'edit': {
+      const index = state.findIndex((t) => equals(t, newTitle));
+      if (index >= 0) {
+        state[index] = newTitle;
+      }
+    }
+    case 'remove': {
+      const index = state.findIndex((t) => equals(t, newTitle));
+      if (index >= 0) {
+        state.splice(index, 1);
+      }
     }
   }
 };
 
-const onExactChange = (exact: ExactTitle) => {
-  if (exact.newTitle !== null) {
-    exacts.push(exact);
-  } else {
-    const index = exacts.findIndex((e) => e.url === exact.url);
-    if (index >= 0) {
-      exacts.splice(index, 1);
-    }
-  }
-};
-
-const onDomainChange = (domain: DomainTitle) => {
-  if (domain.newTitle !== null) {
-    domains.push(domain);
-  } else {
-    // remove
-    const index = domains.findIndex((d) => d.domain === domain.domain);
-    if (index >= 0) {
-      domains.splice(index, 1);
-    }
-  }
-};
-
-const onRegexChange = (regex: RegexTitle) => {
-  if (regex.newTitle !== null) {
-    regexes.push(regex);
-  } else {
-    const index = regexes.findIndex((t) => t.urlPattern === regex.urlPattern);
-    if (index >= 0) {
-      regexes.splice(index, 1);
-    }
-  }
-};
+const onTablockChange = generateActionHandler(
+  tablocks,
+  (t1, t2) => t1.tabId === t2.tabId
+);
+const onExactChange = generateActionHandler(
+  exacts,
+  (t1, t2) => t1.url === t2.url
+);
+const onDomainChange = generateActionHandler(
+  domains,
+  (t1, t2) => t1.domain === t2.domain
+);
+const onRegexChange = generateActionHandler(
+  regexes,
+  (t1, t2) => t1.urlPattern === t2.urlPattern
+);
 
 chrome.storage.onChanged.addListener(
   storageChangeHandler({
@@ -257,15 +275,17 @@ chrome.contextMenus.create({ id: 'ctxmnu', title: 'Set a temporary title' });
 chrome.contextMenus.onClicked.addListener(function (info, tab) {
   chrome.tabs.executeScript({
     code: `const tempTitle = prompt("Enter a temporary title"); \
-       ${setTitle.toString()}; setTitle(tempTitle, 'onetime');`,
+       ${injectTitle.toString()}; injectTitle(tempTitle, 'onetime');`,
   });
 });
 
 // Receives rename message from popup.js
 chrome.runtime.onMessage.addListener(function (request: MessageRequest) {
-  insertTitle(
-    request.id,
-    decodeTitle(request.oldTitle, request.newTitle),
-    request.option
-  );
+  (async () => {
+    insertTitle(
+      request.id,
+      await decodeTitle(request.oldTitle, request.newTitle, 3),
+      request.option
+    );
+  })();
 });
