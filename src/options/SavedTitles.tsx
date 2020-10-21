@@ -23,7 +23,7 @@ import {
   StorageAction,
   StoredTitle,
 } from '../shared/types';
-import { storageChangeHandler, getTitles } from '../shared/storageHandler';
+import { storageChangeHandler, initTitles } from '../shared/storageHandler';
 
 const noop = () => {};
 
@@ -107,7 +107,7 @@ const SavedTitles = () => {
       onDomainChange,
       onRegexChange,
     });
-    getTitles({
+    initTitles({
       onTablockChange,
       onExactChange,
       onDomainChange,

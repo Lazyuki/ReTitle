@@ -37,7 +37,7 @@ import {
 /**
  * Get all titles and call title setters
  */
-export function getTitles({
+export async function initTitles({
   onTablockChange,
   onExactChange,
   onDomainChange,
@@ -67,84 +67,66 @@ export function getTitles({
       }
     }
   };
-  getAllSyncItems(callHandlers);
-  getAllLocalItems((items) => {
-    delete items[KEY_DEFAULT_TAB_OPTION];
-    delete items[KEY_THEME];
-    callHandlers(items);
-  });
+  callHandlers(await getAllSyncItems());
+  const localItems = await getAllLocalItems();
+  delete localItems[KEY_DEFAULT_TAB_OPTION];
+  delete localItems[KEY_THEME];
+  callHandlers(localItems);
+}
+
+interface AllOptions extends GeneralStorageType {
+  [KEY_THEME]: ThemeState;
+  [KEY_DEFAULT_TAB_OPTION]: TabOption;
+  [KEY_CONTEXT_MENU]: boolean;
 }
 
 // Get all user options
-export function getOptions(
-  callback: (options: {
-    [KEY_THEME]: ThemeState;
-    [KEY_DEFAULT_TAB_OPTION]: TabOption;
-  }) => void
-) {
-  getLocalItems(
-    [KEY_THEME, KEY_DEFAULT_TAB_OPTION, KEY_CONTEXT_MENU],
-    (items) => {
-      const theme = (items[KEY_THEME] as ThemeState) || 'dark';
-      const defaultOption =
-        (items[KEY_DEFAULT_TAB_OPTION] as TabOption) || 'onetime';
-      callback({ [KEY_THEME]: theme, [KEY_DEFAULT_TAB_OPTION]: defaultOption });
-    }
-  );
+export async function getOptions(): Promise<AllOptions> {
+  return getLocalItems<AllOptions>([
+    KEY_THEME,
+    KEY_DEFAULT_TAB_OPTION,
+    KEY_CONTEXT_MENU,
+  ]);
 }
 
 // Get theme option
-export function getTheme(callback: (theme: ThemeState) => void) {
-  getLocalItem(KEY_THEME, (item: ThemeState | null) => {
-    callback(item || 'dark');
-  });
+export async function getTheme(): Promise<ThemeState> {
+  return (await getLocalItem(KEY_THEME)) || 'dark';
 }
 
 // Get default tab option
-export function getDefaultOption(callback: (defaultOption: TabOption) => void) {
-  getLocalItem(KEY_DEFAULT_TAB_OPTION, (item: TabOption | null) => {
-    callback(item || 'onetime');
-  });
+export async function getDefaultOption(): Promise<TabOption> {
+  return (await getLocalItem(KEY_DEFAULT_TAB_OPTION)) || 'onetime';
 }
 
 // Get context menu option
-export function getContextMenuOption(callback: (contextMene: boolean) => void) {
-  getLocalItem(KEY_CONTEXT_MENU, (item: boolean | null) => {
-    callback(Boolean(item));
-  });
+export async function getContextMenuOption(): Promise<boolean> {
+  return Boolean(await getLocalItem(KEY_CONTEXT_MENU));
 }
 
 // Set theme option
-export function setTheme(theme: ThemeState, callback?: () => void) {
-  setLocalItem(KEY_THEME, theme, callback);
+export function setTheme(theme: ThemeState) {
+  return setLocalItem(KEY_THEME, theme);
 }
 
 // Set default tab option
-export function setDefaultOption(option: TabOption, callback?: () => void) {
-  setLocalItem(KEY_DEFAULT_TAB_OPTION, option, callback);
+export function setDefaultOption(option: TabOption) {
+  return setLocalItem(KEY_DEFAULT_TAB_OPTION, option);
 }
 
 // Set context menu option
-export function setContextMenuOption(option: boolean, callback?: () => void) {
-  setLocalItem(KEY_CONTEXT_MENU, option, callback);
+export function setContextMenuOption(option: boolean) {
+  return setLocalItem(KEY_CONTEXT_MENU, option);
 }
 
 // Set title matcher
-export function setSyncTitle(
-  key: string,
-  value: StoredTitle,
-  callback?: () => void
-) {
-  setSyncItem(key, value, callback);
+export function setSyncTitle(key: string, value: StoredTitle) {
+  return setSyncItem(key, value);
 }
 
 // Set title matcher in local storage
-export function setLocalTitle(
-  key: string,
-  value: StoredTitle,
-  callback?: () => void
-) {
-  setLocalItem(key, value, callback);
+export function setLocalTitle(key: string, value: StoredTitle) {
+  return setLocalItem(key, value);
 }
 
 export const storageChangeHandler = ({
@@ -205,34 +187,27 @@ export function saveTitle(
   tabOption: TabOption,
   currentTab: chrome.tabs.Tab,
   options?: TitleOptions & { [key: string]: any }
-) {
+): Promise<void> {
   const url = currentTab.url;
   switch (tabOption) {
     case 'tablock': {
-      TablockRule.save(currentTab.id!, newTitle, options, window.close);
-      break;
+      return TablockRule.save(currentTab.id!, newTitle, options);
     }
     case 'exact': {
-      ExactRule.save(url!, newTitle, options, window.close);
-      break;
+      return ExactRule.save(url!, newTitle, options);
     }
     case 'domain': {
       const urlDomain = extractDomain(url);
-      DomainRule.save(urlDomain, newTitle, options, window.close);
-      break;
+      return DomainRule.save(urlDomain, newTitle, options);
     }
     case 'regex': {
       const { urlPattern, ...rest } = options as TitleOptions & {
         urlPattern: string;
       };
-      RegexRule.save(urlPattern, newTitle, rest, window.close);
-      break;
+      return RegexRule.save(urlPattern, newTitle, rest);
     }
-    default:
-      // Don't save anything
-      window.close();
-      return;
   }
+  return new Promise(() => {});
 }
 
 export class TablockRule {
@@ -243,25 +218,16 @@ export class TablockRule {
   static equals(t1: TabLockTitle, t2: TabLockTitle) {
     return t1.tabId === t2.tabId;
   }
-  static save(
-    tabId: number,
-    newTitle: NewTitle,
-    options?: TitleOptions,
-    callback?: () => void
-  ) {
-    setLocalTitle(
-      TablockRule.generateKey(tabId),
-      {
-        option: 'tablock',
-        tabId,
-        newTitle,
-        ...options,
-      },
-      callback
-    );
+  static save(tabId: number, newTitle: NewTitle, options?: TitleOptions) {
+    return setLocalTitle(TablockRule.generateKey(tabId), {
+      option: 'tablock',
+      tabId,
+      newTitle,
+      ...options,
+    });
   }
   static remove(tabId: number) {
-    removeLocalItems(TablockRule.generateKey(tabId));
+    return removeLocalItems(TablockRule.generateKey(tabId));
   }
 }
 
@@ -275,25 +241,16 @@ export class ExactRule {
   static equals(t1: ExactTitle, t2: ExactTitle) {
     return t1.url === t2.url && t1.containerId === t2.containerId;
   }
-  static save(
-    url: string,
-    newTitle: NewTitle,
-    options?: TitleOptions,
-    callback?: () => void
-  ) {
-    setSyncTitle(
-      ExactRule.generateKey(url, options?.containerId),
-      {
-        option: 'exact',
-        url,
-        newTitle,
-        ...options,
-      },
-      callback
-    );
+  static save(url: string, newTitle: NewTitle, options?: TitleOptions) {
+    return setSyncTitle(ExactRule.generateKey(url, options?.containerId), {
+      option: 'exact',
+      url,
+      newTitle,
+      ...options,
+    });
   }
   static remove(url: string, containerId?: string) {
-    removeLocalItems(ExactRule.generateKey(url, containerId));
+    return removeLocalItems(ExactRule.generateKey(url, containerId));
   }
 }
 
@@ -304,25 +261,16 @@ export class DomainRule {
       containerId ? `${PREFIX_CONTAINER}${containerId}|` : ''
     }${PREFIX_DOMAIN}${domain}`;
   }
-  static save(
-    domain: string,
-    newTitle: NewTitle,
-    options?: TitleOptions,
-    callback?: () => void
-  ) {
-    setSyncTitle(
-      DomainRule.generateKey(domain, options?.containerId),
-      {
-        option: 'domain',
-        domain,
-        newTitle,
-        ...options,
-      },
-      callback
-    );
+  static save(domain: string, newTitle: NewTitle, options?: TitleOptions) {
+    return setSyncTitle(DomainRule.generateKey(domain, options?.containerId), {
+      option: 'domain',
+      domain,
+      newTitle,
+      ...options,
+    });
   }
   static remove(domain: string, containerId?: string) {
-    removeLocalItems(DomainRule.generateKey(domain, containerId));
+    return removeLocalItems(DomainRule.generateKey(domain, containerId));
   }
 }
 
@@ -333,24 +281,18 @@ export class RegexRule {
       containerId ? `${PREFIX_CONTAINER}${containerId}|` : ''
     }${PREFIX_REGEX}${regex}`;
   }
-  static save(
-    urlPattern: string,
-    newTitle: NewTitle,
-    options?: TitleOptions,
-    callback?: () => void
-  ) {
-    setSyncTitle(
+  static save(urlPattern: string, newTitle: NewTitle, options?: TitleOptions) {
+    return setSyncTitle(
       RegexRule.generateKey(urlPattern, options?.containerId),
       {
         option: 'regex',
         urlPattern,
         newTitle,
         ...options,
-      },
-      callback
+      }
     );
   }
   static remove(regex: string, containerId?: string) {
-    removeLocalItems(RegexRule.generateKey(regex, containerId));
+    return removeLocalItems(RegexRule.generateKey(regex, containerId));
   }
 }

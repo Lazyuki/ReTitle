@@ -14,7 +14,11 @@ import CurrentTitle from './CurrentTitle';
 import BookmarkTitle from './BookmarkTitle';
 import { extractDomain } from '../shared/utils';
 import { TabOption } from '../shared/types';
-import { saveTitle, getDefaultOption } from '../shared/storageHandler';
+import {
+  saveTitle,
+  getDefaultOption,
+  setDefaultOption,
+} from '../shared/storageHandler';
 import RegexInputGroup from '../shared/RegexInputGroup';
 
 const useStyles = makeStyles({
@@ -94,7 +98,7 @@ const Form = () => {
       const currentTab = tabs[0];
       setTab(currentTab);
       setInputAndSelect(currentTab.title || '');
-      getDefaultOption(setOption);
+      getDefaultOption().then(setDefaultOption);
     },
     [setInputAndSelect]
   );

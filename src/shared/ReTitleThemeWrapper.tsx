@@ -77,7 +77,7 @@ const ReTitleThemeWrapper: FC = ({ children }) => {
   globalStyles();
 
   useEffect(() => {
-    getTheme((storedTheme) => {
+    getTheme().then((storedTheme) => {
       if (storedTheme) {
         setTheme(storedTheme);
         localStorage.setItem('theme', storedTheme);

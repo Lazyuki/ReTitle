@@ -16,7 +16,7 @@ chrome.contextMenus.onClicked.addListener(function (info, tab) {
 });
 
 // Add context menu if option is set
-getContextMenuOption((enableContextMenu) => {
+getContextMenuOption().then((enableContextMenu) => {
   if (enableContextMenu) {
     createContextMenu();
   }

@@ -21,7 +21,7 @@ chrome.runtime.onInstalled.addListener((details) => {
   const prev = details.previousVersion;
   // Upgrading from v0 or v1
   if (prev && (prev.startsWith('0.') || prev.startsWith('1.'))) {
-    getAllSyncItems((items) => {
+    getAllSyncItems().then((items) => {
       const storage = items as LegacyStorageSchema;
       for (const key in storage) {
         // v0 tab lock mistake.

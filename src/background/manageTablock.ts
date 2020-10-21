@@ -123,7 +123,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, info, tab) {
 // Get tablock caches when extension startsup
 chrome.runtime.onStartup.addListener(function () {
   // tablock caches are stored locally
-  getAllLocalItems(function (items) {
+  getAllLocalItems().then(function (items) {
     const hasCrashed = items['crash'] as boolean | undefined;
     const tlc = items['tablockCaches'] as Record<string, TablockCache>;
     Object.keys(tlc).forEach((tabId) => {
@@ -134,7 +134,7 @@ chrome.runtime.onStartup.addListener(function () {
     previousCrashed = hasCrashed || false;
     setLocalItem('crash', true);
   });
-  getAllLocalItems(function (items) {
+  getAllLocalItems().then(function (items) {
     // Clean up residual Tablock keys stored in storage, since we fill those up through cache
     Object.keys(items).forEach((itemKey) => {
       if (itemKey.startsWith(PREFIX_TABLOCK)) {

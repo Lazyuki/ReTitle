@@ -60,8 +60,8 @@ const UserSettings = () => {
   );
 
   useEffect(() => {
-    getDefaultOption(setOption);
-    getTheme((theme) => setIsDark(theme === 'dark'));
+    getDefaultOption().then(setDefaultOption);
+    getTheme().then((theme) => setIsDark(theme === 'dark'));
   }, []);
 
   const handleOptionChange = useCallback((e: any) => {
