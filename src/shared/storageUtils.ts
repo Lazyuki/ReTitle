@@ -1,28 +1,43 @@
 export type GeneralStorageType = { [key: string]: unknown };
 
-function makePromise<T = GeneralStorageType>(
-  api: (callback: (items?: GeneralStorageType) => void) => void,
-  transformer?: (items: GeneralStorageType) => T
+type StorageArea = 'sync' | 'local';
+
+async function getStorage<T = GeneralStorageType>(
+  area: StorageArea,
+  transformer: (items: GeneralStorageType) => T,
+  keys?: string | string[]
 ): Promise<T> {
+  if (BROWSER === 'firefox') {
+    return transformer(await browser.storage[area].get(keys));
+  }
   return new Promise((resolve) => {
-    api((items?: GeneralStorageType) => {
+    chrome.storage[area].get(keys || null, (items?: GeneralStorageType) => {
       resolve(transformer?.(items || {}));
     });
   });
 }
 
-function makePromiseWithParam<
-  T = GeneralStorageType,
-  K = string | string[] | Object
->(
-  api: (keys: K, callback: (items?: GeneralStorageType) => void) => void,
-  keys: K,
-  transformer?: (items: GeneralStorageType) => T
-): Promise<T> {
+async function modifyStorage(
+  area: StorageArea,
+  method: 'set',
+  keys: GeneralStorageType
+): Promise<void>;
+async function modifyStorage(
+  area: StorageArea,
+  method: 'remove',
+  keys: string | string[]
+): Promise<void>;
+
+async function modifyStorage(
+  area: StorageArea,
+  method: 'set' | 'remove',
+  keys: string | string[] | GeneralStorageType
+) {
+  if (BROWSER === 'firefox') {
+    return browser.storage[area][method](keys as any);
+  }
   return new Promise((resolve) => {
-    api(keys, (items?: GeneralStorageType) => {
-      resolve(transformer?.(items || {}));
-    });
+    chrome.storage[area][method](keys as any, resolve);
   });
 }
 
@@ -30,34 +45,22 @@ function makePromiseWithParam<
  * Get all items
  */
 export function getAllSyncItems(): Promise<GeneralStorageType> {
-  return makePromise(chrome.storage.sync.get, (i) => i);
+  return getStorage('sync', (i) => i);
 }
 
 export function getAllLocalItems(): Promise<GeneralStorageType> {
-  return makePromise(chrome.storage.local.get, (i) => i);
+  return getStorage('local', (i) => i);
 }
 
 /**
  * Get a single item with the key null otherwise
  */
 export function getSyncItem<T = unknown>(key: string): Promise<T | null> {
-  return makePromiseWithParam<T | null>(
-    chrome.storage.sync.get,
-    key,
-    (items) => {
-      return (items[key] as T) || null;
-    }
-  );
+  return getStorage('sync', (items) => (items[key] as T) || null, key);
 }
 
 export function getLocalItem<T = unknown>(key: string): Promise<T | null> {
-  return makePromiseWithParam<T | null>(
-    chrome.storage.local.get,
-    key,
-    (items) => {
-      return (items[key] as T) || null;
-    }
-  );
+  return getStorage('local', (items) => (items[key] as T) || null, key);
 }
 
 /**
@@ -66,42 +69,42 @@ export function getLocalItem<T = unknown>(key: string): Promise<T | null> {
 export function getSyncItems<T extends GeneralStorageType>(
   keys: string[]
 ): Promise<T> {
-  return makePromiseWithParam<T>(chrome.storage.sync.get, keys, (i) => i as T);
+  return getStorage('sync', (i) => i as T, keys);
 }
 export function getLocalItems<T extends GeneralStorageType>(
   keys: string[]
 ): Promise<T> {
-  return makePromiseWithParam<T>(chrome.storage.local.get, keys, (i) => i as T);
+  return getStorage('local', (i) => i as T, keys);
 }
 
 /**
  * Set a key value pair
  */
 export function setSyncItem(key: string, value: any): Promise<void> {
-  return makePromiseWithParam(chrome.storage.sync.set, { [key]: value });
+  return modifyStorage('sync', 'set', { [key]: value });
 }
 
 export function setLocalItem(key: string, value: any): Promise<void> {
-  return makePromiseWithParam(chrome.storage.local.set, { [key]: value });
+  return modifyStorage('local', 'set', { [key]: value });
 }
 
 /**
  * Set key value pairs
  */
 export function setSyncItems(items: Record<string, any>): Promise<void> {
-  return makePromiseWithParam(chrome.storage.sync.set, items);
+  return modifyStorage('sync', 'set', items);
 }
 export function setLocalItems(items: Record<string, any>): Promise<void> {
-  return makePromiseWithParam(chrome.storage.local.set, items);
+  return modifyStorage('local', 'set', items);
 }
 
 /**
  * Remove items with the specified keys
  */
 export function removeSyncItems(keys: string | string[]): Promise<void> {
-  return makePromiseWithParam(chrome.storage.sync.remove, keys);
+  return modifyStorage('sync', 'remove', keys);
 }
 
 export function removeLocalItems(keys: string | string[]): Promise<void> {
-  return makePromiseWithParam(chrome.storage.local.remove, keys);
+  return modifyStorage('local', 'remove', keys);
 }

@@ -1,11 +1,11 @@
+// Core functionalities
 import './onInstall';
 import './manageTablock';
 import './retitle';
+
 import { injectTitle } from './injectedScripts';
-
 import { getContextMenuOption } from '../shared/storageHandler';
-
-import { createContextMenu } from 'src/shared/utils';
+import { createContextMenu } from '../shared/utils';
 
 // Simple context menu
 chrome.contextMenus.onClicked.addListener(function (info, tab) {
