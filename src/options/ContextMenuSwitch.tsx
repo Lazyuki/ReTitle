@@ -1,7 +1,7 @@
 import { h, JSX } from 'preact';
 import { useEffect, useState } from 'preact/compat';
 import Switch from '@material-ui/core/Switch';
-import { createContextMenu } from 'src/shared/utils';
+import { createContextMenu } from '../shared/utils';
 
 const ContextMenuSwitch = () => {
   const [contextMenu, setContextMenu] = useState(false);

@@ -15,6 +15,7 @@
   },
   "scripts": {
     "lint": "eslint src",
+    "preinstall": "npx npm-force-resolutions",
     "dev": "npm-run-all --parallel dev:chrome dev:firefox",
     "dev:chrome": "webpack --watch --env.BROWSER=chrome ",
     "dev:firefox": "webpack --watch --env.BROWSER=firefox ",
@@ -64,5 +65,8 @@
   },
   "prettier": {
     "singleQuote": true
+  },
+  "resolutions": {
+    "acorn": "8.0.1"
   }
 }

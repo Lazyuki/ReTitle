@@ -3,7 +3,7 @@ import './onInstall';
 import './manageTablock';
 import './retitle';
 
-import { injectTitle } from './injectedScripts';
+import { injectTitle } from '../shared/injectedScripts';
 import { getContextMenuOption } from '../shared/storageHandler';
 import { createContextMenu } from '../shared/utils';
 

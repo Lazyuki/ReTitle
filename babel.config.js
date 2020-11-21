@@ -7,7 +7,7 @@ module.exports = function (api) {
         '@babel/env',
         {
           targets:
-            'last 5 chrome version, last 5 firefox version, chrome 49, edge >= 84',
+            'last 5 chrome version, last 5 firefox version, edge >= 84, chrome 49',
         },
       ],
       [
@@ -26,5 +26,6 @@ module.exports = function (api) {
         },
       ],
     ],
+    plugins: ['@babel/plugin-proposal-class-properties'],
   };
 };

@@ -57,6 +57,7 @@ module.exports = (env) => {
           base: baseManifest,
           extend: {
             version: pkg.version,
+            permissions: browser === 'firefox' ? ['contextualIdentities'] : [],
             ...(browser === 'firefox' ? firefoxManifestSettings : {}),
           },
         },

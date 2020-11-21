@@ -1,4 +1,4 @@
-import { TabOption } from '../shared/types';
+import { TabOption } from './types';
 
 export function injectTitle(newTitle: string, option: TabOption) {
   const META_OPTION = 'retitle:option';
@@ -46,4 +46,18 @@ export function injectTitle(newTitle: string, option: TabOption) {
     titleElement.appendChild(document.createTextNode(newTitle));
     headElement.appendChild(titleElement);
   }
+}
+
+export function getCurrentOption() {
+  const META_OPTION = 'retitle:option';
+  const META_ORIGINAL = 'retitle:original';
+  const metaOption = document.querySelector(`meta[name='${META_OPTION}']`);
+  const metaOriginal = document.querySelector(`meta[name='${META_ORIGINAL}']`);
+  if (metaOption && metaOriginal) {
+    return [
+      metaOption.getAttribute('content'),
+      metaOriginal.getAttribute('content'),
+    ] as const;
+  }
+  return null;
 }

@@ -20,6 +20,7 @@ import {
   setDefaultOption,
 } from '../shared/storageHandler';
 import RegexInputGroup from '../shared/RegexInputGroup';
+import { getCurrentOption } from '../shared/injectedScripts';
 
 const useStyles = makeStyles({
   root: {
@@ -46,15 +47,6 @@ const useStyles = makeStyles({
     fontSize: '12px',
   },
 });
-
-function getCurrentOption() {
-  const META_OPTION = 'retitle:option';
-  const metaOption = document.querySelector(`meta[name='${META_OPTION}']`);
-  if (metaOption) {
-    return metaOption.getAttribute('content');
-  }
-  return null;
-}
 
 const Form = () => {
   const [tab, setTab] = useState<chrome.tabs.Tab | null>(null);

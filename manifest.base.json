@@ -35,13 +35,6 @@
       "description": "Set new title"
     }
   },
-  "permissions": [
-    "activeTab",
-    "tabs",
-    "storage",
-    "<all_urls>",
-    "contextMenus",
-    "contextualIdentities"
-  ],
+  "permissions": ["activeTab", "tabs", "storage", "<all_urls>", "contextMenus"],
   "optional_permissions": ["bookmarks"]
 }

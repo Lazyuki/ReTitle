@@ -213,7 +213,7 @@ export function saveTitle(
 export class TablockRule {
   static option = 'tablock' as TabOption;
   static generateKey(tabId: number) {
-    return `}${PREFIX_TABLOCK}${tabId}`;
+    return `${PREFIX_TABLOCK}${tabId}`;
   }
   static equals(t1: TabLockTitle, t2: TabLockTitle) {
     return t1.tabId === t2.tabId;

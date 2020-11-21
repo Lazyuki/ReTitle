@@ -1,4 +1,4 @@
-import { injectTitle } from './injectedScripts';
+import { injectTitle } from '../shared/injectedScripts';
 
 import { storageChangeHandler } from '../shared/storageHandler';
 import {
