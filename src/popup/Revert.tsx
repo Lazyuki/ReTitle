@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { makeStyles } from '@material-ui/core/styles';
 import AccessibleButton from '../shared/AccessibleButton';
 import ReplayIcon from '@material-ui/icons/Replay';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const useStyles = makeStyles({
   root: {
@@ -29,18 +30,19 @@ const useStyles = makeStyles({
 const Revert = ({ tabId }: { tabId: number }) => {
   const styles = useStyles();
   return (
-    <AccessibleButton
-      className={styles.root}
-      title="Restore original title temporarily"
-      onClick={() =>
-        chrome.runtime.sendMessage({
-          type: 'revert',
-          tabId,
-        })
-      }
-    >
-      <ReplayIcon />
-    </AccessibleButton>
+    <Tooltip title={'Restore original title temporarily'} enterDelay={300}>
+      <AccessibleButton
+        className={styles.root}
+        onClick={() =>
+          chrome.runtime.sendMessage({
+            type: 'revert',
+            tabId,
+          })
+        }
+      >
+        <ReplayIcon />
+      </AccessibleButton>
+    </Tooltip>
   );
 };
 

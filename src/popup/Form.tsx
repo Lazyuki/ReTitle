@@ -9,6 +9,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Button from '@material-ui/core/Button';
 import Switch from '@material-ui/core/Switch';
 
+import accessDeniedWarning from './accessDeniedWarning';
 import Revert from './Revert';
 import Gear from './Gear';
 import CurrentTitle from './CurrentTitle';
@@ -28,6 +29,14 @@ const useStyles = makeStyles({
     width: '450px',
     padding: '20px',
     overflow: 'hidden',
+  },
+  warning: {
+    padding: '20px',
+    fontSize: '18px',
+    textAlign: 'center',
+    '& a': {
+      color: 'orange !important',
+    },
   },
   input: {
     width: '100%',
@@ -125,90 +134,97 @@ const Form = () => {
   }, [inputValue, option, tab]);
 
   const domain = extractDomain(tab?.url);
+  const warning = accessDeniedWarning(domain, tab?.url);
 
   return (
     <div className={styles.root}>
       {tab && activeOption && <Revert tabId={tab.id || -1} />}
       <Gear />
-      <CurrentTitle
-        currentTitle={tab?.title}
-        setInputValue={setInputAndSelect}
-      />
-      <BookmarkTitle url={tab?.url} setInputValue={setInputAndSelect} />
-      <FormControlLabel
-        control={
-          <Switch
-            checked={useRegex}
-            onChange={() => setUseRegex((p) => !p)}
-            name="use-regex"
-            color="primary"
-          />
-        }
-        label="Use Regex"
-      />
-      {useRegex ? (
-        <RegexInputGroup
-          onChange={(regexString: string) => setInputValue(regexString)}
-        />
+      {warning ? (
+        <div className={styles.warning}>{warning}</div>
       ) : (
-        <TextField
-          multiline={true}
-          spellCheck={false}
-          className={styles.input}
-          inputRef={inputRef}
-          label="New Title"
-          value={inputValue}
-          onKeyPress={(e: any) => {
-            if (e.which == 13 && !e.shiftKey) {
-              e.preventDefault();
-              setTitle();
-              return false;
+        <div>
+          <CurrentTitle
+            currentTitle={tab?.title}
+            setInputValue={setInputAndSelect}
+          />
+          <BookmarkTitle url={tab?.url} setInputValue={setInputAndSelect} />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={useRegex}
+                onChange={() => setUseRegex((p) => !p)}
+                name="use-regex"
+                color="primary"
+              />
             }
-          }}
-          onChange={(e: any) => setInputValue(e.target.value)}
-          onFocus={(e: any) => e.target.select()}
-        />
+            label="Use Regex"
+          />
+          {useRegex ? (
+            <RegexInputGroup
+              onChange={(regexString: string) => setInputValue(regexString)}
+            />
+          ) : (
+            <TextField
+              multiline={true}
+              spellCheck={false}
+              className={styles.input}
+              inputRef={inputRef}
+              label="New Title"
+              value={inputValue}
+              onKeyPress={(e: any) => {
+                if (e.which == 13 && !e.shiftKey) {
+                  e.preventDefault();
+                  setTitle();
+                  return false;
+                }
+              }}
+              onChange={(e: any) => setInputValue(e.target.value)}
+              onFocus={(e: any) => e.target.select()}
+            />
+          )}
+          {activeOption && <div>Option: {activeOption} is active</div>}
+          <FormControl className={styles.radios} component="fieldset">
+            <RadioGroup
+              aria-label="option"
+              name="option"
+              value={option}
+              onChange={handleOptionChange}
+            >
+              <FormControlLabel
+                value="onetime"
+                control={<Radio color="primary" />}
+                label="Set it temporarily"
+              />
+              <FormControlLabel
+                value="tablock"
+                control={<Radio color="primary" />}
+                label="Set for this tab"
+              />
+              <FormControlLabel
+                value="exact"
+                control={<Radio color="primary" />}
+                label="Set for this exact URL"
+              />
+              <FormControlLabel
+                value="domain"
+                control={<Radio color="primary" />}
+                label={`Set for this domain: ${domain}`}
+                disabled={!domain}
+              />
+            </RadioGroup>
+          </FormControl>
+          <Button
+            className={styles.button}
+            variant="outlined"
+            color="primary"
+            onClick={setTitle}
+          >
+            SET TITLE
+          </Button>
+        </div>
       )}
 
-      {activeOption && <div>Option: {activeOption} is active</div>}
-      <FormControl className={styles.radios} component="fieldset">
-        <RadioGroup
-          aria-label="option"
-          name="option"
-          value={option}
-          onChange={handleOptionChange}
-        >
-          <FormControlLabel
-            value="onetime"
-            control={<Radio color="primary" />}
-            label="Set it temporarily"
-          />
-          <FormControlLabel
-            value="tablock"
-            control={<Radio color="primary" />}
-            label="Set for this tab"
-          />
-          <FormControlLabel
-            value="exact"
-            control={<Radio color="primary" />}
-            label="Set for this exact URL"
-          />
-          <FormControlLabel
-            value="domain"
-            control={<Radio color="primary" />}
-            label={`Set for this domain: ${domain}`}
-            disabled={!domain}
-          />
-        </RadioGroup>
-      </FormControl>
-      <Button
-        className={styles.button}
-        variant="outlined"
-        color="primary"
-        onClick={setTitle}
-      >
-        SET TITLE
-      </Button>
       <div className={styles.version}>v{EXTENSION_VERSION}</div>
     </div>
   );

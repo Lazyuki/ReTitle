@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { makeStyles } from '@material-ui/core/styles';
 import GearSvg from '../../static/svgs/gear.svg';
 import AccessibleButton from '../shared/AccessibleButton';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const useStyles = makeStyles({
   root: {
@@ -28,13 +29,14 @@ const useStyles = makeStyles({
 const Gear = () => {
   const styles = useStyles();
   return (
-    <AccessibleButton
-      className={styles.root}
-      onClick={() => chrome.runtime.openOptionsPage(() => window.close())}
-      title={'Open settings'}
-    >
-      <GearSvg />
-    </AccessibleButton>
+    <Tooltip title={'Open settings'} enterDelay={300}>
+      <AccessibleButton
+        className={styles.root}
+        onClick={() => chrome.runtime.openOptionsPage(() => window.close())}
+      >
+        <GearSvg />
+      </AccessibleButton>
+    </Tooltip>
   );
 };
 
