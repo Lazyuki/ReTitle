@@ -7,8 +7,10 @@ const useStyles = makeStyles({
   root: {
     cursor: 'pointer',
     marginBottom: '10px',
-    marginRight: '40px',
-    wordBreak: 'break-all',
+    marginRight: '60px',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
   },
   label: {
     opacity: 0.7,
@@ -45,7 +47,10 @@ const BookmarkTitle = ({
   }, [url]);
 
   return bookmarkedTitle !== null ? (
-    <Tooltip title="Paste bookmark title" arrow>
+    <Tooltip
+      title={`Click to paste bookmark title: ${bookmarkedTitle}`}
+      placement="bottom-start"
+    >
       <div
         className={styles.root}
         onClick={() => setInputValue(bookmarkedTitle)}

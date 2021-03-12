@@ -10,8 +10,8 @@ import { createContextMenu } from '../shared/utils';
 // Simple context menu
 chrome.contextMenus.onClicked.addListener(function (info, tab) {
   chrome.tabs.executeScript({
-    code: `const tempTitle = prompt("Enter a temporary title"); \
-       ${injectTitle.toString()}; injectTitle(tempTitle, 'onetime');`,
+    code: `tempTitle = prompt("Enter a temporary title", window.getSelection().toString()); \
+       ${injectTitle.toString()}; tempTitle !== null && injectTitle(tempTitle, 'onetime');`,
   });
 });
 

@@ -31,7 +31,7 @@ export function injectTitle(newTitle: string, option: TabOption) {
     metaOption.setAttribute('content', option);
   }
 
-  if (document.title) {
+  if (document.querySelector('head > title')) {
     const metaOriginal = getOrCreateMeta(META_ORIGINAL, document.title);
     if (newTitle.includes('$0')) {
       // Make sure it doesn't use the cached old title and as an original title.
@@ -60,4 +60,17 @@ export function getCurrentOption() {
     ] as const;
   }
   return null;
+}
+
+export function revertRetitle() {
+  const META_ORIGINAL = 'retitle:original';
+  const metaOriginal = document.querySelector(`meta[name='${META_ORIGINAL}']`);
+  if (metaOriginal) {
+    document.title = metaOriginal.getAttribute('content') || '';
+    document
+      .querySelectorAll('meta[name^="retitle"]')
+      .forEach((n) => n.parentNode?.removeChild(n));
+    return true;
+  }
+  return false;
 }

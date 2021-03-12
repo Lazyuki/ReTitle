@@ -23,7 +23,7 @@ const chipProps = {
 const useStyles = makeStyles((theme) => ({
   root: {
     fontSize: '0.8em',
-    borderTop: `1px solid ${theme.palette.primary.main}`,
+    background: 'black',
   },
   container: {
     display: 'flex',
@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Chrome = (
   <Chip
-    icon={(<ChromeIcon />) as any}
+    icon={<ChromeIcon />}
     label={isChrome ? 'Rate Me!' : 'Chrome'}
     href="https://chrome.google.com/webstore/detail/tab-retitle/hilgambgdpjgljhjdaccadahckpdiapo"
     {...chipProps}
@@ -56,7 +56,7 @@ const Chrome = (
 );
 const Firefox = (
   <Chip
-    icon={(<FirefoxIcon />) as any}
+    icon={<FirefoxIcon />}
     label={isChrome ? 'Firefox' : 'Rate Me!'}
     href="https://addons.mozilla.org/en-US/firefox/addon/tab-retitle/"
     {...chipProps}
@@ -73,13 +73,13 @@ const Footer = () => {
         <div className={styles.links}>
           {links}
           <Chip
-            icon={(<GitHubIcon />) as any}
+            icon={<GitHubIcon />}
             label="GitHub"
             href="https://github.com/Lazyuki/ReTitle"
             {...chipProps}
           />
         </div>
-        <div className={styles.copyRight}>&copy; 2020 Lazyuki</div>
+        <div className={styles.copyRight}>&copy; 2021 Lazyuki</div>
       </Container>
     </footer>
   );

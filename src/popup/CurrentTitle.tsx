@@ -6,8 +6,10 @@ const useStyles = makeStyles({
   root: {
     cursor: 'pointer',
     marginBottom: '10px',
-    marginRight: '40px',
-    wordBreak: 'break-all',
+    marginRight: '60px',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
   },
   label: {
     opacity: 0.7,
@@ -29,7 +31,10 @@ const CurrentTitle = ({
   const styles = useStyles();
 
   return (
-    <Tooltip title="Paste current title" arrow>
+    <Tooltip
+      title={`Click to paste current title: ${currentTitle}`}
+      placement="bottom-start"
+    >
       <div
         className={styles.root}
         onClick={() => setInputValue(currentTitle || '')}

@@ -40,7 +40,8 @@ export function extractDomain(url?: string) {
 
 export function createContextMenu() {
   chrome.contextMenus.create({
-    id: 'ctxmnu',
+    id: 'selection-ctxmnu',
     title: 'Set a temporary title',
+    contexts: ['selection', 'page'],
   });
 }

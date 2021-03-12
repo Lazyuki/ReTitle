@@ -9,6 +9,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Button from '@material-ui/core/Button';
 import Switch from '@material-ui/core/Switch';
 
+import Revert from './Revert';
 import Gear from './Gear';
 import CurrentTitle from './CurrentTitle';
 import BookmarkTitle from './BookmarkTitle';
@@ -66,7 +67,7 @@ const Form = () => {
           runAt: 'document_end',
         },
         (results) => {
-          const result = results[0];
+          const result = results?.[0];
           if (result) {
             setActiveOption(result);
           }
@@ -112,19 +113,22 @@ const Form = () => {
   const setTitle = useCallback(() => {
     if (tab) {
       chrome.runtime.sendMessage({
-        id: tab.id,
+        type: 'rename',
+        tabId: tab.id,
         oldTitle: tab.title,
         newTitle: inputValue,
         option,
       });
       saveTitle(inputValue, option, tab);
     }
+    window.close();
   }, [inputValue, option, tab]);
 
   const domain = extractDomain(tab?.url);
 
   return (
     <div className={styles.root}>
+      {tab && activeOption && <Revert tabId={tab.id || -1} />}
       <Gear />
       <CurrentTitle
         currentTitle={tab?.title}

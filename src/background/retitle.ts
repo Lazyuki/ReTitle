@@ -1,4 +1,4 @@
-import { injectTitle } from '../shared/injectedScripts';
+import { injectTitle, revertRetitle } from '../shared/injectedScripts';
 
 import { storageChangeHandler } from '../shared/storageHandler';
 import {
@@ -7,7 +7,7 @@ import {
   DomainTitle,
   RegexTitle,
   TabOption,
-  MessageRequest,
+  RuntimeMessageRequest,
   NewTitle,
   StorageAction,
   StoredTitle,
@@ -58,26 +58,6 @@ function insertTitle(tabId: number, newTitle: string, option: TabOption) {
     execute();
   }
 }
-
-// const recursionStopper = (function() {
-//   let tabCounter = {}
-//   const add = (tabId) => {
-//     if (tabCounter[tabId]) {
-//       tabCounter[tabId]++;
-//     } else {
-//       tabCounter[tabId] = 1;
-//     }
-//   }
-//   const shouldStop = (tabId) => {
-//     add(tabId);
-//     return tabCounter[tabId] >= 10; // if tab title is changing more than 10 times within 5 seconds, stop.
-//   }
-//   const resetAll = () => {
-//     tabCounter = {};
-//   }
-//   setInterval(resetAll, 5000);
-//   return shouldStop;
-// })();
 
 // Returns a title specified by regex
 async function decodeTitle(
@@ -268,13 +248,24 @@ chrome.storage.onChanged.addListener(
   })
 );
 
+function revertTitle(tabId: number) {
+  chrome.tabs.executeScript(tabId, {
+    code: `${revertRetitle.toString()}; revertRetitle();`,
+    runAt: 'document_end',
+  });
+}
+
 // Receives rename message from popup.js
-chrome.runtime.onMessage.addListener(function (request: MessageRequest) {
-  (async () => {
-    insertTitle(
-      request.id,
-      await decodeTitle(request.oldTitle, request.newTitle, 3),
-      request.option
-    );
-  })();
+chrome.runtime.onMessage.addListener(function (request: RuntimeMessageRequest) {
+  if (request.type === 'rename') {
+    (async () => {
+      insertTitle(
+        request.tabId,
+        await decodeTitle(request.oldTitle, request.newTitle, 3),
+        request.option
+      );
+    })();
+  } else if (request.type === 'revert') {
+    revertTitle(request.tabId);
+  }
 });

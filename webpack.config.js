@@ -3,7 +3,7 @@ const WebpackExtensionManifestPlugin = require('webpack-extension-manifest-plugi
 const CopyPlugin = require('copy-webpack-plugin');
 const ZipPlugin = require('zip-webpack-plugin');
 
-const baseManifest = require('./manifest.base.json');
+const baseManifest = require('./manifest.base');
 const pkg = require('./package.json');
 
 const firefoxManifestSettings = {
@@ -58,7 +58,8 @@ module.exports = (env) => {
           extend: {
             version: pkg.version,
             permissions: browser === 'firefox' ? ['contextualIdentities'] : [],
-            ...(browser === 'firefox' ? firefoxManifestSettings : {}),
+            ...(browser === 'firefox' ? firefoxManifestSettings : null),
+            ...(browser === 'chrome' ? { minimum_chrome_version: '55' } : null), // async/await available from v55
           },
         },
       }),

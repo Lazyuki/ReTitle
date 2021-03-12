@@ -6,8 +6,7 @@ module.exports = function (api) {
       [
         '@babel/env',
         {
-          targets:
-            'last 5 chrome version, last 5 firefox version, edge >= 84, chrome 49',
+          targets: 'last 5 chrome version, last 5 firefox version',
         },
       ],
       [

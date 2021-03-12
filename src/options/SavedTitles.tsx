@@ -120,6 +120,7 @@ const SavedTitles = () => {
   return (
     <div>
       <ul class="description">
+        <li>Temporary titles are not shown here</li>
         <li>
           Use <code>$0</code> to insert the original title. So if you want
           <code>Title</code> to say <code>My Title</code>, set the title name to{' '}

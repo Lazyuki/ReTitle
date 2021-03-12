@@ -60,9 +60,17 @@ export type StoredTitle = TabLockTitle | ExactTitle | DomainTitle | RegexTitle;
 
 export type StorageAction = 'add' | 'remove' | 'edit';
 
-export interface MessageRequest {
-  id: number;
+export interface RenameRequest {
+  type: 'rename';
+  tabId: number;
   oldTitle: string;
   newTitle: NewTitle;
   option: TabOption;
 }
+
+export interface RevertRequest {
+  type: 'revert';
+  tabId: number;
+}
+
+export type RuntimeMessageRequest = RenameRequest | RevertRequest;
