@@ -257,6 +257,7 @@ function revertTitle(tabId: number) {
 
 // Receives rename message from popup.js
 chrome.runtime.onMessage.addListener(function (request: RuntimeMessageRequest) {
+  console.log(request);
   if (request.type === 'rename') {
     (async () => {
       insertTitle(

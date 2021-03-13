@@ -42,6 +42,6 @@ export function createContextMenu() {
   chrome.contextMenus.create({
     id: 'selection-ctxmnu',
     title: 'Set a temporary title',
-    contexts: ['selection', 'page'],
+    contexts: ['selection', 'page', 'tab'],
   });
 }

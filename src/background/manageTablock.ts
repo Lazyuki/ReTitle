@@ -6,6 +6,8 @@ import {
   removeLocalItems,
 } from '../shared/storageUtils';
 
+const isChrome = BROWSER === 'chrome';
+
 interface TablockCache {
   tabId: number;
   windowId: number;
@@ -144,12 +146,14 @@ chrome.runtime.onStartup.addListener(function () {
   });
 });
 
-// Indicate that all states are saved successfully
-chrome.runtime.onSuspend.addListener(function () {
-  removeLocalItems('crash');
-});
+if (isChrome) {
+  // Indicate that all states are saved successfully
+  chrome.runtime.onSuspend.addListener(function () {
+    removeLocalItems('crash');
+  });
 
-// Flag that won't be cleaned if crashed
-chrome.runtime.onSuspendCanceled.addListener(function () {
-  setLocalItem('crash', true);
-});
+  // // Flag that won't be cleaned if crashed
+  chrome.runtime.onSuspendCanceled.addListener(function () {
+    setLocalItem('crash', true);
+  });
+}
